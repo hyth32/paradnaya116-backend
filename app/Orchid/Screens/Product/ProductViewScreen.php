@@ -3,6 +3,7 @@
 namespace App\Orchid\Screens\Product;
 
 use App\Models\Product;
+use App\Orchid\Layouts\Product\ProductStatusBlockLayout;
 use App\Orchid\Layouts\Product\ProductViewLayout;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
@@ -86,6 +87,7 @@ class ProductViewScreen extends Screen
     public function layout(): iterable
     {
         return [
+            ProductStatusBlockLayout::class,
             ProductViewLayout::class,
         ];
     }
