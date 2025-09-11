@@ -2,6 +2,7 @@
 
 namespace App\Orchid\Screens\Product;
 
+use App\Enums\Product\ProductStatus;
 use App\Models\Product;
 use App\Orchid\Layouts\Product\ProductListLayout;
 use App\Orchid\Layouts\Product\ProductListTabMenu;
@@ -13,13 +14,13 @@ class ProductListScreen extends Screen
 {
     public function query(): iterable
     {
-        $status = request()->get('status', 'active');
+        $status = request()->get('status', ProductStatus::Active->value);
 
         $query = Product::with('images')->defaultSort('id', 'desc');
 
         match ($status) {
-            'archived' => $query->archived(),
-            'trashed' => $query->onlyTrashed(),
+            ProductStatus::Archived->value => $query->archived(),
+            ProductStatus::Trashed->value => $query->onlyTrashed(),
             default => $query->active(),
         };
 

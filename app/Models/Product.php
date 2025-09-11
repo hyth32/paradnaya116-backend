@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -38,17 +39,17 @@ class Product extends Model
         return $this->belongsToMany(RentalApplication::class, RentalApplicationProduct::class);
     }
 
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): Builder
     {
         return $query->whereNull('archived_at');
     }
 
-    public function scopeArchived($query)
+    public function scopeArchived(Builder $query): Builder
     {
         return $query->whereNotNull('archived_at');
     }
 
-    public function resolveRouteBinding($value, $field = null)
+    public function resolveRouteBinding($value, $field = null): ?Product
     {
         return $this->withTrashed()->where($field ?? $this->getRouteKeyName(), $value)->firstOrFail();
     }
@@ -56,7 +57,7 @@ class Product extends Model
     private function updateArchiveStatus(?Carbon $time): self
     {
         $this->update(['archived_at' => $time]);
-        return $this;
+        return $this->refresh();
     }
 
     public function archive(): self
