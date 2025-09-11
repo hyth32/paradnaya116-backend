@@ -70,13 +70,8 @@ class Product extends Model
         return $this->updateArchiveStatus(null);
     }
 
-    public function getIsArchivedAttribute(): bool
+    public function isArchived(): bool
     {
         return $this->archived_at !== null;
-    }
-
-    public function getIsDeletedAttribute(): bool
-    {
-        return $this->trashed();
     }
 }

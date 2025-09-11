@@ -56,7 +56,7 @@ class ProductListScreen extends Screen
     {
         $product = Product::findOrFail($id);
 
-        if ($product->is_archived) {
+        if ($product->isArchived()) {
             $product->unarchive();
             Toast::success('Товар восстановлен из архива');
         } else {
@@ -71,7 +71,7 @@ class ProductListScreen extends Screen
 
         $product->unarchive();
 
-        if ($product->is_deleted) {
+        if ($product->trashed()) {
             $product->restore();
             Toast::success('Товар восстановлен');
         } else {

@@ -44,10 +44,10 @@ class ProductListLayout extends Table
                                 ->icon('bs.pencil')
                                 ->route('products.edit', $product->id),
 
-                            Button::make($product->is_archived ? 'Восстановить из архива' : 'Архивировать')
-                                ->canSee(!$product->is_deleted)
-                                ->icon($product->is_archived ? 'bs.arrow-bar-up' : 'bs.archive')
-                                ->confirm($product->is_archived
+                            Button::make($product->isArchived() ? 'Восстановить из архива' : 'Архивировать')
+                                ->canSee(!$product->trashed())
+                                ->icon($product->isArchived() ? 'bs.arrow-bar-up' : 'bs.archive')
+                                ->confirm($product->isArchived()
                                     ? 'Вы уверены, что хотите восстановить товар из архива?'
                                     : 'Вы уверены, что хотите переместить товар в архив?'
                                 )
@@ -55,9 +55,9 @@ class ProductListLayout extends Table
                                     'id' => $product->id,
                                 ]),
 
-                            Button::make($product->is_deleted ? 'Восстановить' : 'Удалить')
-                                ->icon($product->is_deleted ? 'bs.arrow-counterclockwise' : 'bs.trash')
-                                ->confirm($product->is_deleted
+                            Button::make($product->trashed() ? 'Восстановить' : 'Удалить')
+                                ->icon($product->trashed() ? 'bs.arrow-counterclockwise' : 'bs.trash')
+                                ->confirm($product->trashed()
                                     ? 'Вы уверены, что хотите восстановить товар?'
                                     : 'Вы уверены, что хотите удалить товар?'
                                 )

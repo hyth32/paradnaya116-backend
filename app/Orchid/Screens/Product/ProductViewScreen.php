@@ -33,10 +33,10 @@ class ProductViewScreen extends Screen
                 ->icon('bs.pencil')
                 ->route('products.edit', $this->product->id),
 
-            Button::make($this->product->is_archived ? 'Восстановить из архива' : 'Архивировать')
-                ->canSee(!$this->product->is_deleted)
-                ->icon($this->product->is_archived ? 'bs.arrow-bar-up' : 'bs.archive')
-                ->confirm($this->product->is_archived
+            Button::make($this->product->isArchived() ? 'Восстановить из архива' : 'Архивировать')
+                ->canSee(!$this->product->trashed())
+                ->icon($this->product->isArchived() ? 'bs.arrow-bar-up' : 'bs.archive')
+                ->confirm($this->product->isArchived()
                     ? 'Вы уверены, что хотите восстановить товар из архива?'
                     : 'Вы уверены, что хотите переместить товар в архив?'
                 )
@@ -44,9 +44,9 @@ class ProductViewScreen extends Screen
                     'id' => $this->product->id,
                 ]),
 
-            Button::make($this->product->is_deleted ? 'Восстановить' : 'Удалить')
-                ->icon($this->product->is_deleted ? 'bs.arrow-counterclockwise' : 'bs.trash')
-                ->confirm($this->product->is_deleted
+            Button::make($this->product->trashed() ? 'Восстановить' : 'Удалить')
+                ->icon($this->product->trashed() ? 'bs.arrow-counterclockwise' : 'bs.trash')
+                ->confirm($this->product->trashed()
                     ? 'Вы уверены, что хотите восстановить товар?'
                     : 'Вы уверены, что хотите удалить товар?'
                 )
@@ -60,7 +60,7 @@ class ProductViewScreen extends Screen
     {
         $product = Product::findOrFail($id);
 
-        if ($product->is_archived) {
+        if ($product->isArchived()) {
             $product->unarchive();
             Toast::success('Товар восстановлен из архива');
         } else {
@@ -75,7 +75,7 @@ class ProductViewScreen extends Screen
 
         $product->unarchive();
 
-        if ($product->is_deleted) {
+        if ($product->trashed()) {
             $product->restore();
             Toast::success('Товар восстановлен');
         } else {

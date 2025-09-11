@@ -2,10 +2,10 @@
 
 namespace App\Orchid\Screens\Product;
 
+use App\Enums\Product\ProductStatus;
 use App\Http\Requests\Admin\Product\SaveProductRequest;
 use App\Models\Product;
 use App\Orchid\Layouts\Product\ProductEditLayout;
-use Illuminate\Http\Request;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Toast;
@@ -52,15 +52,15 @@ class ProductEditScreen extends Screen
 
         Toast::success($product->wasRecentlyCreated ? 'Товар добавлен' : 'Изменения сохранены');
 
-        $status = 'active';
-        if ($product->is_deleted) {
-            $status = 'trashed';
+        $status = ProductStatus::Active;
+        if ($product->trashed()) {
+            $status = ProductStatus::Trashed;
         }
 
-        if ($product->is_archived) {
-            $status = 'archived';
+        if ($product->isArchived()) {
+            $status = ProductStatus::Archived;
         }
 
-        return redirect()->route('products.index', ['status' => $status]);
+        return redirect()->route('products.index', ['status' => $status->value]);
     }
 }
