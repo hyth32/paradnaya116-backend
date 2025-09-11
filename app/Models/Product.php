@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Orchid\Filters\Filterable;
@@ -30,6 +31,11 @@ class Product extends Model
     public function images(): HasMany
     {
         return $this->hasMany(ProductImage::class);
+    }
+
+    public function rentalApplications(): BelongsToMany
+    {
+        return $this->belongsToMany(RentalApplication::class, RentalApplicationProduct::class);
     }
 
     public function scopeActive($query)
