@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
+use Propaganistas\LaravelPhone\Casts\E164PhoneNumberCast;
 
 class RentalApplication extends Model
 {
@@ -29,6 +30,7 @@ class RentalApplication extends Model
     ];
 
     protected $casts = [
+        'customer_phone' => E164PhoneNumberCast::class.':RU',
         'status' => RentalApplicationStatus::class,
         'start_date' => 'datetime',
         'end_date' => 'datetime',

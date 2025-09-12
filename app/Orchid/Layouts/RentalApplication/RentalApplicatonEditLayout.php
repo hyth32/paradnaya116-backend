@@ -21,7 +21,9 @@ class RentalApplicatonEditLayout extends Rows
             
             Input::make('rentalApplication.customer_phone')
                 ->title('Телефон арендатора')
-                ->placeholder('Введите телефон арендатора'),
+                ->placeholder('Введите телефон арендатора')
+                ->mask('+7 (999) 999-99-99')
+                ->pattern('\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}'),
 
             Input::make('rentalApplication.customer_email')
                 ->title('Email арендатора')
