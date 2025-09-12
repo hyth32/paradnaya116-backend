@@ -6,14 +6,16 @@ use App\Enums\RentalApplication\RentalApplicationStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
 
 class RentalApplication extends Model
 {
-    use AsSource, Filterable;
+    use SoftDeletes, AsSource, Filterable;
 
     protected $fillable = [
+        'status',
         'customer_name',
         'customer_phone',
         'customer_email',

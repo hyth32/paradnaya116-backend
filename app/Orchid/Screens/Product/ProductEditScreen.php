@@ -47,7 +47,7 @@ class ProductEditScreen extends Screen
     public function save(Product $product, SaveProductRequest $request)
     {
         $data = collect($request->validated())->get('product');
-        
+
         $product->fill($data)->save();
 
         Toast::success($product->wasRecentlyCreated ? 'Товар добавлен' : 'Изменения сохранены');

@@ -15,6 +15,8 @@ use App\Orchid\Screens\PlatformScreen;
 use App\Orchid\Screens\Product\ProductEditScreen;
 use App\Orchid\Screens\Product\ProductListScreen;
 use App\Orchid\Screens\Product\ProductViewScreen;
+use App\Orchid\Screens\RentalApplication\RentalApplicationEditScreen;
+use App\Orchid\Screens\RentalApplication\RentalApplicationListScreen;
 use App\Orchid\Screens\Role\RoleEditScreen;
 use App\Orchid\Screens\Role\RoleListScreen;
 use App\Orchid\Screens\User\UserEditScreen;
@@ -58,6 +60,32 @@ Route::prefix('products')->as('products.')->group(function () {
         ->breadcrumbs(fn (Trail $trail, $product) => $trail
             ->parent('products.index')
             ->push($product->name, route('products.view', $product)));
+});
+
+Route::prefix('rental-applications')->as('rental-applications.')->group(function () {
+    Route::screen('/', RentalApplicationListScreen::class)
+        ->name('index')
+        ->breadcrumbs(fn (Trail $trail) => $trail
+            ->parent('platform.index')
+            ->push('Заявки на аренду', route('rental-applications.index')));
+    
+    Route::screen('/create', RentalApplicationEditScreen::class)
+        ->name('create')
+        ->breadcrumbs(fn (Trail $trail) => $trail
+            ->parent('rental-applications.index')
+            ->push('Создание заявки на аренду', route('rental-applications.create')));
+    
+    Route::screen('/{rentalApplication}/edit', RentalApplicationEditScreen::class)
+        ->name('edit')
+        ->breadcrumbs(fn (Trail $trail, $rentalApplication) => $trail
+            ->parent('rental-applications.index')
+            ->push('Редактирование заявки на аренду', route('rental-applications.edit', $rentalApplication)));
+
+    // Route::screen('/{rentalApplication}/view', ProductViewScreen::class)
+    //     ->name('view')
+    //     ->breadcrumbs(fn (Trail $trail, $rentalApplication) => $trail
+    //         ->parent('rental-applications.index')
+    //         ->push($rentalApplication->name, route('rental-applications.view', $rentalApplication)));
 });
 
 Route::name('platform.')->group(function () {

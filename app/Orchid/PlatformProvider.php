@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Orchid;
 
+use App\Enums\Product\ProductStatus;
+use App\Enums\RentalApplication\RentalApplicationStatus;
+use App\Models\RentalApplication;
 use Orchid\Platform\Dashboard;
 use Orchid\Platform\ItemPermission;
 use Orchid\Platform\OrchidServiceProvider;
@@ -21,7 +24,12 @@ class PlatformProvider extends OrchidServiceProvider
         return [
             Menu::make('Каталог')
                 ->icon('bs.journal')
-                ->route('products.index', ['status' => 'active']),
+                ->route('products.index', ['status' => ProductStatus::Active->value]),
+            
+            Menu::make('Заявки на аренду')
+                ->icon('bs.list-ul')
+                ->route('rental-applications.index', ['status' => RentalApplicationStatus::New->value])
+                ->badge(fn () => RentalApplication::query()->new()->count()),
 
             Menu::make('Sample Screen')
                 ->icon('bs.collection')

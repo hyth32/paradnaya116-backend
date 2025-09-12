@@ -49,6 +49,11 @@ class Product extends Model
         return $query->whereNotNull('archived_at');
     }
 
+    public function scopeAvailable(Builder $query): Builder
+    {
+        return $query->active()->where('quantity', '>', 0);
+    }
+
     public function resolveRouteBinding($value, $field = null): ?Product
     {
         return $this->withTrashed()->where($field ?? $this->getRouteKeyName(), $value)->firstOrFail();
