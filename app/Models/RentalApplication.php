@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\RentalApplication\RentalApplicationStatus;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -95,5 +96,25 @@ class RentalApplication extends Model
     {
         $this->update(['status' => $status]);
         return $this->refresh();
+    }
+
+    public function setTimestamp(string $column, Carbon $time): self
+    {
+        $this->update([$column => $time->toDateTimeString()]);
+        return $this->refresh();
+    }
+
+    public function accept(): self
+    {
+        $this->setStatus(RentalApplicationStatus::Active);
+        $this->setTimestamp('approved_at', now());
+        return $this;
+    }
+
+    public function cancel(): self
+    {
+        $this->setStatus(RentalApplicationStatus::Canceled);
+        $this->setTimestamp('canceled_at', now());
+        return $this;
     }
 }

@@ -17,6 +17,7 @@ use App\Orchid\Screens\Product\ProductListScreen;
 use App\Orchid\Screens\Product\ProductViewScreen;
 use App\Orchid\Screens\RentalApplication\RentalApplicationEditScreen;
 use App\Orchid\Screens\RentalApplication\RentalApplicationListScreen;
+use App\Orchid\Screens\RentalApplication\RentalAppllicationViewScreen;
 use App\Orchid\Screens\Role\RoleEditScreen;
 use App\Orchid\Screens\Role\RoleListScreen;
 use App\Orchid\Screens\User\UserEditScreen;
@@ -81,11 +82,11 @@ Route::prefix('rental-applications')->as('rental-applications.')->group(function
             ->parent('rental-applications.index')
             ->push('Редактирование заявки на аренду', route('rental-applications.edit', $rentalApplication)));
 
-    // Route::screen('/{rentalApplication}/view', ProductViewScreen::class)
-    //     ->name('view')
-    //     ->breadcrumbs(fn (Trail $trail, $rentalApplication) => $trail
-    //         ->parent('rental-applications.index')
-    //         ->push($rentalApplication->name, route('rental-applications.view', $rentalApplication)));
+    Route::screen('/{rentalApplication}/view', RentalAppllicationViewScreen::class)
+        ->name('view')
+        ->breadcrumbs(fn (Trail $trail, $rentalApplication) => $trail
+            ->parent('rental-applications.index')
+            ->push("Заявка на аренду №{$rentalApplication->id}", route('rental-applications.view', $rentalApplication)));
 });
 
 Route::name('platform.')->group(function () {

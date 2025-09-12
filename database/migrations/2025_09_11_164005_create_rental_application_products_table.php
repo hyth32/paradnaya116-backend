@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreign('product_id', 'fk-rental-product-1')
                 ->references('id')
                 ->on('products');
+            $table->integer('quantity');
 
             $table->timestamps();
         });

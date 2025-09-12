@@ -8,6 +8,7 @@ use App\Orchid\Layouts\RentalApplication\RentalApplicationListLayout;
 use App\Orchid\Layouts\RentalApplication\RentalApplicationListTabLayout;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Screen;
+use Orchid\Support\Facades\Toast;
 
 class RentalApplicationListScreen extends Screen
 {
@@ -50,5 +51,12 @@ class RentalApplicationListScreen extends Screen
             RentalApplicationListTabLayout::class,
             RentalApplicationListLayout::class,
         ];
+    }
+
+    public function remove(int $id): void
+    {
+        $rentalApplication = RentalApplication::findOrFail($id);   
+        $rentalApplication->delete();
+        Toast::success('Заявка на аренду удалена');
     }
 }

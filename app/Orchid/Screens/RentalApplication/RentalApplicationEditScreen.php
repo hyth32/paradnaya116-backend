@@ -44,10 +44,12 @@ class RentalApplicationEditScreen extends Screen
 
     public function save(RentalApplication $rentalApplication, SaveRentalApplicationRequest $request)
     {
-        $data = collect($request->validated())->get('rentalApplication');
+        $data = collect(collect($request->validated())->get('rentalApplication'));
 
-        $productIds = collect($data)->get('products');
-        $rentalApplicationData = collect($data)->except('products')->toArray();
+        $rentalApplicationProducts = $data->only('products')
+            ->map(fn ($productId) => ['product_id' => $productId, 'quantity' => 1])
+            ->toArray();
+        $rentalApplicationData = $data->except('products')->toArray();
 
         $status = !$rentalApplication->id
             ? RentalApplicationStatus::New
@@ -56,7 +58,7 @@ class RentalApplicationEditScreen extends Screen
         $rentalApplicationData['status'] = $status;
         $rentalApplication->fill($rentalApplicationData)->save();
 
-        $rentalApplication->products()->sync($productIds);
+        $rentalApplication->products()->sync($rentalApplicationProducts);
 
         Toast::success($rentalApplication->wasRecentlyCreated ? 'Заявка на аренду добавлена' : 'Изменения сохранены');
 

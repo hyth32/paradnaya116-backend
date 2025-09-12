@@ -36,9 +36,9 @@ class RentalApplicationListLayout extends Table
                     DropDown::make()
                         ->icon('bs.three-dots-vertical')
                         ->list([
-                            // Link::make('Посмотреть')
-                            //     ->icon('bs.eye')
-                            //     ->route('products.view', $product->id),
+                            Link::make('Посмотреть')
+                                ->icon('bs.eye')
+                                ->route('rental-applications.view', $rentalApplication->id),
                             
                             Link::make('Редактировать')
                                 ->icon('bs.pencil')

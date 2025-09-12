@@ -24,6 +24,9 @@ class ProductListLayout extends Table
 
             TD::make('quantity', 'Количество товара'),
 
+            TD::make('available_quantity', 'Доступное количество')
+                ->render(fn (Product $product) => $product->getAvailableQuantity()),
+
             TD::make('created_at', 'Дата создания')
                 ->render(fn (Product $product) => $product->created_at->format('d.m.Y H:i')),
 

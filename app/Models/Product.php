@@ -36,7 +36,7 @@ class Product extends Model
 
     public function rentalApplications(): BelongsToMany
     {
-        return $this->belongsToMany(RentalApplication::class, RentalApplicationProduct::class);
+        return $this->belongsToMany(RentalApplication::class, RentalApplicationProduct::class)->withPivot('quantity');
     }
 
     public function scopeActive(Builder $query): Builder
@@ -78,5 +78,13 @@ class Product extends Model
     public function isArchived(): bool
     {
         return $this->archived_at !== null;
+    }
+
+    public function getAvailableQuantity()
+    {
+        $pivot = 'rental_application_products';
+        $reserved = $this->rentalApplications()->active()->sum("{$pivot}.quantity");
+        
+        return max(0, $this->quantity - $reserved);
     }
 }

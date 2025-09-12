@@ -10,6 +10,7 @@ class RentalApplicationProduct extends Model
     protected $fillable = [
         'rental_application_id',
         'product_id',
+        'quantity',
     ];
 
     public function rentalApplication(): BelongsTo
