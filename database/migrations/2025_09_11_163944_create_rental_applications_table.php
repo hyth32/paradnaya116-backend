@@ -25,6 +25,7 @@ return new class extends Migration
 
             $table->timestamp('approved_at')->nullable();
             $table->timestamp('canceled_at')->nullable();
+            $table->timestamp('completed_at')->nullable();
 
             $table->timestamps();
             $table->softDeletes();
