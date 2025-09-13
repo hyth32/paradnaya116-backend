@@ -41,6 +41,7 @@ class RentalApplicationListLayout extends Table
                                 ->route('rental-applications.view', $rentalApplication->id),
                             
                             Link::make('Редактировать')
+                                ->canSee(!$rentalApplication->isCompleted())
                                 ->icon('bs.pencil')
                                 ->route('rental-applications.edit', $rentalApplication->id),
 

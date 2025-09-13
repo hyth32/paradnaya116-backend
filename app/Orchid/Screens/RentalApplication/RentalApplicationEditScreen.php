@@ -4,6 +4,7 @@ namespace App\Orchid\Screens\RentalApplication;
 
 use App\Enums\RentalApplication\RentalApplicationStatus;
 use App\Http\Requests\Admin\RentalApplication\SaveRentalApplicationRequest;
+use App\Models\Product;
 use App\Orchid\Layouts\RentalApplication\RentalApplicatonEditLayout;
 use App\Models\RentalApplication;
 use Orchid\Screen\Actions\Button;
@@ -46,15 +47,19 @@ class RentalApplicationEditScreen extends Screen
     {
         $data = collect(collect($request->validated())->get('rentalApplication'));
 
-        $rentalApplicationProducts = $data->only('products')
+        $productIds = collect($data->get('products'), []);
+        $totalPrice = Product::whereIn('id', $productIds)->sum('price');
+
+        $rentalApplicationProducts = $productIds
             ->map(fn ($productId) => ['product_id' => $productId, 'quantity' => 1])
             ->toArray();
-        $rentalApplicationData = $data->except('products')->toArray();
+        $rentalApplicationData = collect($data)->except('products')->toArray();
 
         $status = !$rentalApplication->id
             ? RentalApplicationStatus::New
             : $rentalApplication->status;
 
+        $rentalApplicationData['total_price'] = $totalPrice;
         $rentalApplicationData['status'] = $status;
         $rentalApplication->fill($rentalApplicationData)->save();
 

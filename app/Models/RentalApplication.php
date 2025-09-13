@@ -28,6 +28,7 @@ class RentalApplication extends Model
         'end_date',
         'approved_at',
         'canceled_at',
+        'completed_at',
     ];
 
     protected $casts = [
@@ -115,6 +116,13 @@ class RentalApplication extends Model
     {
         $this->setStatus(RentalApplicationStatus::Canceled);
         $this->setTimestamp('canceled_at', now());
+        return $this;
+    }
+
+    public function complete(): self
+    {
+        $this->setStatus(RentalApplicationStatus::Completed);
+        $this->setTimestamp('completed_at', now());
         return $this;
     }
 }

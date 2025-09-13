@@ -35,11 +35,6 @@ class ProductEditLayout extends Rows
                 ->title('Количество товара')
                 ->placeholder('Введите количество товара')
                 ->required(),
-
-            // Cropper::make('product.image')
-            //     ->title('Главное изображение товара')
-            //     ->width(512)
-            //     ->height(512),
         ];
     }
 }
