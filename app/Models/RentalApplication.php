@@ -36,6 +36,9 @@ class RentalApplication extends Model
         'status' => RentalApplicationStatus::class,
         'start_date' => 'datetime',
         'end_date' => 'datetime',
+        'approved_at' => 'datetime',
+        'canceled_at' => 'datetime',
+        'completed_at' => 'datetime',
     ];
 
     public function products(): BelongsToMany

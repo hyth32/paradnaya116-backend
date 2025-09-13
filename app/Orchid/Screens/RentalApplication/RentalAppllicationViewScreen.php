@@ -4,6 +4,7 @@ namespace App\Orchid\Screens\RentalApplication;
 
 use App\Enums\RentalApplication\RentalApplicationStatus;
 use App\Models\RentalApplication;
+use App\Orchid\Layouts\RentalApplication\RentalApplicationStatusBlockLayout;
 use App\Orchid\Layouts\RentalApplication\RentalApplicationViewLayout;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\DropDown;
@@ -35,7 +36,7 @@ class RentalAppllicationViewScreen extends Screen
                 ->route('rental-applications.edit', $this->rentalApplication->id)
         ]);
 
-        if (!$this->rentalApplication->isCompleted()) {
+        if (!$this->rentalApplication->isCompleted() && !$this->rentalApplication->isCanceled()) {
             $commandBar->push(
                 DropDown::make('Изменить статус')
                     ->icon('bs.clipboard')
@@ -94,7 +95,7 @@ class RentalAppllicationViewScreen extends Screen
     public function layout(): iterable
     {
         return [
-            // ProductStatusBlockLayout::class,
+            RentalApplicationStatusBlockLayout::class,
             RentalApplicationViewLayout::class,
         ];
     }
