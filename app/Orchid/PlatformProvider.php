@@ -31,44 +31,44 @@ class PlatformProvider extends OrchidServiceProvider
                 ->route('rental-applications.index', ['status' => RentalApplicationStatus::New->value])
                 ->badge(fn () => RentalApplication::query()->new()->count()),
 
-            Menu::make('Sample Screen')
-                ->icon('bs.collection')
-                ->route('platform.example')
-                ->badge(fn () => 6),
+            // Menu::make('Sample Screen')
+            //     ->icon('bs.collection')
+            //     ->route('platform.example')
+            //     ->badge(fn () => 6),
 
-            Menu::make('Form Elements')
-                ->icon('bs.card-list')
-                ->route('platform.example.fields')
-                ->active('*/examples/form/*'),
+            // Menu::make('Form Elements')
+            //     ->icon('bs.card-list')
+            //     ->route('platform.example.fields')
+            //     ->active('*/examples/form/*'),
 
-            Menu::make('Layouts Overview')
-                ->icon('bs.window-sidebar')
-                ->route('platform.example.layouts'),
+            // Menu::make('Layouts Overview')
+            //     ->icon('bs.window-sidebar')
+            //     ->route('platform.example.layouts'),
 
-            Menu::make('Grid System')
-                ->icon('bs.columns-gap')
-                ->route('platform.example.grid'),
+            // Menu::make('Grid System')
+            //     ->icon('bs.columns-gap')
+            //     ->route('platform.example.grid'),
 
-            Menu::make('Charts')
-                ->icon('bs.bar-chart')
-                ->route('platform.example.charts'),
+            // Menu::make('Charts')
+            //     ->icon('bs.bar-chart')
+            //     ->route('platform.example.charts'),
 
-            Menu::make('Cards')
-                ->icon('bs.card-text')
-                ->route('platform.example.cards')
-                ->divider(),
+            // Menu::make('Cards')
+            //     ->icon('bs.card-text')
+            //     ->route('platform.example.cards')
+            //     ->divider(),
 
-            Menu::make(__('Users'))
-                ->icon('bs.people')
-                ->route('platform.systems.users.index')
-                ->permission('platform.systems.users')
-                ->title(__('Access Controls')),
+            // Menu::make(__('Users'))
+            //     ->icon('bs.people')
+            //     ->route('platform.systems.users.index')
+            //     ->permission('platform.systems.users')
+            //     ->title(__('Access Controls')),
 
-            Menu::make(__('Roles'))
-                ->icon('bs.shield')
-                ->route('platform.systems.roles.index')
-                ->permission('platform.systems.roles')
-                ->divider(),
+            // Menu::make(__('Roles'))
+            //     ->icon('bs.shield')
+            //     ->route('platform.systems.roles.index')
+            //     ->permission('platform.systems.roles')
+            //     ->divider(),
         ];
     }
 
