@@ -19,6 +19,13 @@ class RentalApplicationListLayout extends Table
         return [
             TD::make('id', 'ID'),
 
+            TD::make('type', 'Тип заявки')
+                ->render(fn (RentalApplication $rentalApplication) => match($rentalApplication->type) {
+                    \App\Enums\RentalApplication\RentalApplicationType::Purchase => 'Заявка на покупку',
+                    \App\Enums\RentalApplication\RentalApplicationType::Service => 'Заявка на услугу',
+                    \App\Enums\RentalApplication\RentalApplicationType::Rental => 'Заявка на аренду',
+                }),
+
             TD::make('customer_name', 'Имя арендатора'),
 
             TD::make('start_date', 'Начало аренды')

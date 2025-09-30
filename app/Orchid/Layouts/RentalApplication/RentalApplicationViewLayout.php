@@ -15,6 +15,13 @@ class RentalApplicationViewLayout extends Legend
         return [
             Sight::make('id', 'ID'),
 
+            Sight::make('type', 'Тип заявки')
+                ->render(fn (RentalApplication $rentalApplication) => match($rentalApplication->type) {
+                    \App\Enums\RentalApplication\RentalApplicationType::Purchase => 'Заявка на покупку',
+                    \App\Enums\RentalApplication\RentalApplicationType::Service => 'Заявка на услугу',
+                    \App\Enums\RentalApplication\RentalApplicationType::Rental => 'Заявка на аренду',
+                }),
+
             Sight::make('customer', 'Данные арендатора')
                 ->render(fn (RentalApplication $rentalApplication) => 
                     view('orchid.rental-application.customer-info', [

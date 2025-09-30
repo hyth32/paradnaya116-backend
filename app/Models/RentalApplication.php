@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\RentalApplication\RentalApplicationStatus;
+use App\Enums\RentalApplication\RentalApplicationType;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +19,7 @@ class RentalApplication extends Model
 
     protected $fillable = [
         'status',
+        'type',
         'customer_name',
         'customer_phone',
         'customer_email',
@@ -34,6 +36,7 @@ class RentalApplication extends Model
     protected $casts = [
         'customer_phone' => E164PhoneNumberCast::class.':RU',
         'status' => RentalApplicationStatus::class,
+        'type' => RentalApplicationType::class,
         'start_date' => 'datetime',
         'end_date' => 'datetime',
         'approved_at' => 'datetime',
@@ -71,6 +74,26 @@ class RentalApplication extends Model
         return $query->status(RentalApplicationStatus::Completed);
     }
 
+    public function scopeType(Builder $query, RentalApplicationType $type): Builder
+    {
+        return $query->where('type', $type);
+    }
+
+    public function scopePurchase(Builder $query): Builder
+    {
+        return $query->type(RentalApplicationType::Purchase);
+    }
+
+    public function scopeService(Builder $query): Builder
+    {
+        return $query->type(RentalApplicationType::Service);
+    }
+
+    public function scopeRental(Builder $query): Builder
+    {
+        return $query->type(RentalApplicationType::Rental);
+    }
+
     public function hasStatus(RentalApplicationStatus $status): bool
     {
         return $this->status == $status;
@@ -96,9 +119,35 @@ class RentalApplication extends Model
         return $this->hasStatus(RentalApplicationStatus::Completed);
     }
 
+    public function hasType(RentalApplicationType $type): bool
+    {
+        return $this->type == $type;
+    }
+
+    public function isPurchase(): bool
+    {
+        return $this->hasType(RentalApplicationType::Purchase);
+    }
+
+    public function isService(): bool
+    {
+        return $this->hasType(RentalApplicationType::Service);
+    }
+
+    public function isRental(): bool
+    {
+        return $this->hasType(RentalApplicationType::Rental);
+    }
+
     public function setStatus(RentalApplicationStatus $status): self
     {
         $this->update(['status' => $status]);
+        return $this->refresh();
+    }
+
+    public function setType(RentalApplicationType $type): self
+    {
+        $this->update(['type' => $type]);
         return $this->refresh();
     }
 

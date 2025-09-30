@@ -3,6 +3,7 @@
 namespace App\Orchid\Layouts\RentalApplication;
 
 use App\Models\Product;
+use App\Enums\RentalApplication\RentalApplicationType;
 use Orchid\Screen\Fields\DateTimer;
 use Orchid\Screen\Layouts\Rows;
 use Orchid\Screen\Fields\Input;
@@ -14,6 +15,15 @@ class RentalApplicatonEditLayout extends Rows
     protected function fields(): iterable
     {
         return [
+            Select::make('rentalApplication.type')
+                ->title('Тип заявки')
+                ->options([
+                    RentalApplicationType::Purchase->value => 'Заявка на покупку',
+                    RentalApplicationType::Service->value => 'Заявка на услугу',
+                    RentalApplicationType::Rental->value => 'Заявка на аренду',
+                ])
+                ->required(),
+
             Input::make('rentalApplication.customer_name')
                 ->title('Имя арендатора')
                 ->placeholder('Введите имя арендатора')

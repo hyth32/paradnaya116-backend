@@ -18,6 +18,7 @@ class SaveRentalApplicationRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'rentalApplication.type' => 'required|in:purchase,service,rental',
             'rentalApplication.customer_name' => 'required|string',
             'rentalApplication.customer_phone' => 'nullable|phone:RU',
             'rentalApplication.customer_email' => 'nullable|email:rfc',
@@ -32,6 +33,7 @@ class SaveRentalApplicationRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            'rentalApplication.type' => 'Тип заявки',
             'rentalApplication.customer_name' => 'Имя арендатора',
             'rentalApplication.customer_phone' => 'Телефон арендатора',
             'rentalApplication.customer_email' => 'Email аредатора',
