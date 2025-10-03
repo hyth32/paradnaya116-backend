@@ -20,7 +20,7 @@ class ProductListScreen extends Screen
 
         match ($status) {
             ProductStatus::Archived->value => $query->archived(),
-            ProductStatus::Trashed->value => $query->onlyTrashed(),
+            ProductStatus::Trashed->value => $query->trashed(),
             default => $query->active(),
         };
 
@@ -57,25 +57,27 @@ class ProductListScreen extends Screen
         $product = Product::findOrFail($id);
 
         if ($product->isArchived()) {
-            $product->unarchive();
+            $product->status = ProductStatus::Active;
+            $product->save();
             Toast::success('Товар восстановлен из архива');
         } else {
-            $product->archive();
+            $product->status = ProductStatus::Archived;
+            $product->save();
             Toast::success('Товар перенесен в архив');
         }
     }
 
     public function toggleRemove(int $id): void
     {
-        $product = Product::withTrashed()->findOrFail($id);
+        $product = Product::findOrFail($id);
 
-        $product->unarchive();
-
-        if ($product->trashed()) {
-            $product->restore();
+        if ($product->isTrashed()) {
+            $product->status = ProductStatus::Active;
+            $product->save();
             Toast::success('Товар восстановлен');
         } else {
-            $product->delete();
+            $product->status = ProductStatus::Trashed;
+            $product->save();
             Toast::success('Товар удален');
         }
     }

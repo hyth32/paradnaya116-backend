@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Orchid\Layouts\Product;
+namespace App\Orchid\Layouts\Service;
 
 use Orchid\Screen\Layout;
 use Orchid\Screen\Repository;
 
-class ProductStatusBlockLayout extends Layout
+class ServiceStatusBlockLayout extends Layout
 {
     protected $template = 'orchid.service.status';
 
     public function build(Repository $repository)
     {
         return view($this->template, [
-            'service' => $repository->get('product'),
+            'service' => $repository->get('service'),
         ]);
     }
 }

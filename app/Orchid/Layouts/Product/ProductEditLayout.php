@@ -2,10 +2,11 @@
 
 namespace App\Orchid\Layouts\Product;
 
-use Orchid\Screen\Fields\Cropper;
+use App\Enums\Product\ProductStatus;
 use Orchid\Screen\Layouts\Rows;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Quill;
+use Orchid\Screen\Fields\Select;
 
 class ProductEditLayout extends Rows
 {
@@ -34,6 +35,15 @@ class ProductEditLayout extends Rows
                 ->type('number')
                 ->title('Количество товара')
                 ->placeholder('Введите количество товара')
+                ->required(),
+
+            Select::make('product.status')
+                ->title('Статус')
+                ->options([
+                    ProductStatus::Active->value => ProductStatus::Active->label(),
+                    ProductStatus::Archived->value => ProductStatus::Archived->label(),
+                    ProductStatus::Trashed->value => ProductStatus::Trashed->label(),
+                ])
                 ->required(),
         ];
     }

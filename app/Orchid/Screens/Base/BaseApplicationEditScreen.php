@@ -5,9 +5,11 @@ namespace App\Orchid\Screens\Base;
 use App\Enums\RentalApplication\RentalApplicationStatus;
 use App\Http\Requests\Admin\RentalApplication\SaveRentalApplicationRequest;
 use App\Models\Product;
+use App\Models\Service;
 use App\Models\RentalApplication;
 use App\Orchid\Layouts\Base\BaseApplicationEditLayout;
 use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Toast;
 
@@ -38,6 +40,10 @@ abstract class BaseApplicationEditScreen extends Screen
     public function commandBar(): iterable
     {
         return [
+            Link::make('Назад')
+                ->icon('bs.arrow-left')
+                ->route($this->getBackRoute()),
+
             Button::make(__('Save'))
                 ->icon('bs.check-circle')
                 ->method('save'),
@@ -56,12 +62,22 @@ abstract class BaseApplicationEditScreen extends Screen
         $data = collect(collect($request->validated())->get('rentalApplication'));
 
         $productIds = collect($data->get('products'), []);
-        $totalPrice = Product::whereIn('id', $productIds)->sum('price');
+        $serviceIds = collect($data->get('services'), []);
+        
+        $totalPrice = 0;
+        if ($productIds->isNotEmpty()) {
+            $totalPrice += Product::whereIn('id', $productIds)->sum('price');
+        }
+        if ($serviceIds->isNotEmpty()) {
+            $totalPrice += Service::whereIn('id', $serviceIds)->sum('price');
+        }
 
         $applicationProducts = $productIds
             ->map(fn ($productId) => ['product_id' => $productId, 'quantity' => 1])
             ->toArray();
-        $applicationData = collect($data)->except('products')->toArray();
+        $applicationServices = $serviceIds->toArray();
+        
+        $applicationData = collect($data)->except(['products', 'services'])->toArray();
 
         $status = !$application->id
             ? RentalApplicationStatus::New
@@ -71,7 +87,12 @@ abstract class BaseApplicationEditScreen extends Screen
         $applicationData['status'] = $status;
         $application->fill($applicationData)->save();
 
-        $application->products()->sync($applicationProducts);
+        if ($productIds->isNotEmpty()) {
+            $application->products()->sync($applicationProducts);
+        }
+        if ($serviceIds->isNotEmpty()) {
+            $application->services()->sync($applicationServices);
+        }
 
         Toast::success($application->wasRecentlyCreated ? $this->createMessage : $this->updateMessage);
 
@@ -86,6 +107,11 @@ abstract class BaseApplicationEditScreen extends Screen
     protected function getEditTitle(): string
     {
         return 'Редактирование заявки';
+    }
+
+    protected function getBackRoute(): string
+    {
+        return 'rental-applications.index';
     }
 
     abstract protected function getEditLayoutClass(): string;

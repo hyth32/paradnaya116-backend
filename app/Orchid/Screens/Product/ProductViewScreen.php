@@ -2,6 +2,7 @@
 
 namespace App\Orchid\Screens\Product;
 
+use App\Enums\Product\ProductStatus;
 use App\Models\Product;
 use App\Orchid\Layouts\Product\ProductStatusBlockLayout;
 use App\Orchid\Layouts\Product\ProductViewLayout;
@@ -29,12 +30,16 @@ class ProductViewScreen extends Screen
     public function commandBar(): iterable
     {
         return [
+            Link::make('Назад')
+                ->icon('bs.arrow-left')
+                ->route('products.index'),
+
             Link::make('Редактировать')
                 ->icon('bs.pencil')
                 ->route('products.edit', $this->product->id),
 
             Button::make($this->product->isArchived() ? 'Восстановить из архива' : 'Архивировать')
-                ->canSee(!$this->product->trashed())
+                ->canSee(!$this->product->isTrashed())
                 ->icon($this->product->isArchived() ? 'bs.arrow-bar-up' : 'bs.archive')
                 ->confirm($this->product->isArchived()
                     ? 'Вы уверены, что хотите восстановить товар из архива?'
@@ -44,9 +49,9 @@ class ProductViewScreen extends Screen
                     'id' => $this->product->id,
                 ]),
 
-            Button::make($this->product->trashed() ? 'Восстановить' : 'Удалить')
-                ->icon($this->product->trashed() ? 'bs.arrow-counterclockwise' : 'bs.trash')
-                ->confirm($this->product->trashed()
+            Button::make($this->product->isTrashed() ? 'Восстановить' : 'Удалить')
+                ->icon($this->product->isTrashed() ? 'bs.arrow-counterclockwise' : 'bs.trash')
+                ->confirm($this->product->isTrashed()
                     ? 'Вы уверены, что хотите восстановить товар?'
                     : 'Вы уверены, что хотите удалить товар?'
                 )
@@ -61,25 +66,27 @@ class ProductViewScreen extends Screen
         $product = Product::findOrFail($id);
 
         if ($product->isArchived()) {
-            $product->unarchive();
+            $product->status = ProductStatus::Active;
+            $product->save();
             Toast::success('Товар восстановлен из архива');
         } else {
-            $product->archive();
+            $product->status = ProductStatus::Archived;
+            $product->save();
             Toast::success('Товар перенесен в архив');
         }
     }
 
     public function toggleRemove(int $id): void
     {
-        $product = Product::withTrashed()->findOrFail($id);
+        $product = Product::findOrFail($id);
 
-        $product->unarchive();
-
-        if ($product->trashed()) {
-            $product->restore();
+        if ($product->isTrashed()) {
+            $product->status = ProductStatus::Active;
+            $product->save();
             Toast::success('Товар восстановлен');
         } else {
-            $product->delete();
+            $product->status = ProductStatus::Trashed;
+            $product->save();
             Toast::success('Товар удален');
         }
     }

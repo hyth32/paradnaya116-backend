@@ -23,7 +23,7 @@ class ProductListTabMenu extends TabMenu
 
             Menu::make('Удаленные товары')
                 ->route('products.index', ['status' => ProductStatus::Trashed->value])
-                ->badge(fn () => Product::query()->onlyTrashed()->count(), Color::DANGER),
+                ->badge(fn () => Product::query()->trashed()->count(), Color::DANGER),
         ];
     }
 }

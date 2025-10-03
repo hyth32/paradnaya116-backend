@@ -3,70 +3,53 @@
 namespace App\Orchid\Screens\RentalApplication;
 
 use App\Enums\RentalApplication\RentalApplicationStatus;
+use App\Enums\RentalApplication\RentalApplicationType;
 use App\Http\Requests\Admin\RentalApplication\SaveRentalApplicationRequest;
 use App\Models\Product;
-use App\Orchid\Layouts\RentalApplication\RentalApplicatonEditLayout;
 use App\Models\RentalApplication;
-use Orchid\Screen\Actions\Button;
-use Orchid\Screen\Screen;
+use App\Orchid\Screens\Base\BaseApplicationEditScreen;
+use App\Orchid\Layouts\RentalApplication\RentalApplicatonEditLayout;
 use Orchid\Support\Facades\Toast;
 
-class RentalApplicationEditScreen extends Screen
+class RentalApplicationEditScreen extends BaseApplicationEditScreen
 {
-    public ?RentalApplication $rentalApplication = null;
-    
-    public function query(RentalApplication $rentalApplication): iterable
-    {
-        return [
-            'rentalApplication' => $rentalApplication,
-        ];
-    }
+    protected string $createMessage = 'Заявка на аренду добавлена';
+    protected string $updateMessage = 'Изменения сохранены';
 
-    public function name(): ?string
-    {
-        return $this->rentalApplication->exists ? 'Редактирование заявки на аренду' : 'Создание заявки на аренду';
-    }
-
-    public function commandBar(): iterable
-    {
-        return [
-            Button::make(__('Save'))
-                ->icon('bs.check-circle')
-                ->method('save'),
-        ];
-    }
-
-    public function layout(): iterable
-    {
-        return [
-            RentalApplicatonEditLayout::class,
-        ];
-    }
-
-    public function save(RentalApplication $rentalApplication, SaveRentalApplicationRequest $request)
+    public function save(RentalApplication $application, SaveRentalApplicationRequest $request)
     {
         $data = collect(collect($request->validated())->get('rentalApplication'));
 
         $productIds = collect($data->get('products'), []);
         $totalPrice = Product::whereIn('id', $productIds)->sum('price');
 
-        $rentalApplicationProducts = $productIds
+        $applicationProducts = $productIds
             ->map(fn ($productId) => ['product_id' => $productId, 'quantity' => 1])
             ->toArray();
-        $rentalApplicationData = collect($data)->except('products')->toArray();
+        $applicationData = collect($data)->except('products')->toArray();
 
-        $status = !$rentalApplication->id
+        $status = !$application->id
             ? RentalApplicationStatus::New
-            : $rentalApplication->status;
+            : $application->status;
 
-        $rentalApplicationData['total_price'] = $totalPrice;
-        $rentalApplicationData['status'] = $status;
-        $rentalApplication->fill($rentalApplicationData)->save();
+        $applicationData['total_price'] = $totalPrice;
+        $applicationData['status'] = $status;
+        $application->fill($applicationData)->save();
 
-        $rentalApplication->products()->sync($rentalApplicationProducts);
+        $application->products()->sync($applicationProducts);
 
-        Toast::success($rentalApplication->wasRecentlyCreated ? 'Заявка на аренду добавлена' : 'Изменения сохранены');
+        Toast::success($application->wasRecentlyCreated ? $this->createMessage : $this->updateMessage);
 
         return redirect()->route('rental-applications.index', ['status' => $status->value]);
+    }
+
+    protected function getEditLayoutClass(): string
+    {
+        return RentalApplicatonEditLayout::class;
+    }
+
+    protected function getBackRoute(): string
+    {
+        return 'rental-applications.index';
     }
 }

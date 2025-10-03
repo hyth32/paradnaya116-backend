@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\Product\SaveProductRequest;
 use App\Models\Product;
 use App\Orchid\Layouts\Product\ProductEditLayout;
 use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Toast;
 
@@ -31,6 +32,10 @@ class ProductEditScreen extends Screen
     public function commandBar(): iterable
     {
         return [
+            Link::make('Назад')
+                ->icon('bs.arrow-left')
+                ->route('products.index'),
+
             Button::make(__('Save'))
                 ->icon('bs.check-circle')
                 ->method('save'),
@@ -52,14 +57,7 @@ class ProductEditScreen extends Screen
 
         Toast::success($product->wasRecentlyCreated ? 'Товар добавлен' : 'Изменения сохранены');
 
-        $status = ProductStatus::Active;
-        if ($product->trashed()) {
-            $status = ProductStatus::Trashed;
-        }
-
-        if ($product->isArchived()) {
-            $status = ProductStatus::Archived;
-        }
+        $status = $product->status;
 
         return redirect()->route('products.index', ['status' => $status->value]);
     }

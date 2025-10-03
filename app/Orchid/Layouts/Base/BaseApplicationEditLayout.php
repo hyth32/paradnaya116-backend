@@ -3,6 +3,7 @@
 namespace App\Orchid\Layouts\Base;
 
 use App\Models\Product;
+use App\Models\Service;
 use App\Enums\RentalApplication\RentalApplicationType;
 use Orchid\Screen\Fields\DateTimer;
 use Orchid\Screen\Layouts\Rows;
@@ -18,7 +19,7 @@ abstract class BaseApplicationEditLayout extends Rows
             Select::make('rentalApplication.type')
                 ->title('Тип заявки')
                 ->options($this->getTypeOptions())
-                ->required(),
+                ->canSee($this->shouldShowType()),
 
             Input::make('rentalApplication.customer_name')
                 ->title($this->getCustomerNameTitle())
@@ -37,9 +38,14 @@ abstract class BaseApplicationEditLayout extends Rows
 
             Select::make('rentalApplication.products')
                 ->title('Товары')
-                ->fromQuery(Product::query()->available(), 'name')
+                ->fromQuery(Product::query()->where('status', 'active'), 'name')
                 ->multiple()
-                ->required(),
+                ->canSee($this->shouldShowProducts()),
+
+            Select::make('rentalApplication.services')
+                ->title('Услуги')
+                ->fromQuery(Service::query()->active(), 'name')
+                ->canSee($this->shouldShowServices()),
 
             Input::make('rentalApplication.deposit')
                 ->type('number')
@@ -121,5 +127,20 @@ abstract class BaseApplicationEditLayout extends Rows
     protected function getEndDatePlaceholder(): string
     {
         return 'Выберите дату окончания';
+    }
+
+    protected function shouldShowProducts(): bool
+    {
+        return true; // По умолчанию показываем товары
+    }
+
+    protected function shouldShowServices(): bool
+    {
+        return false; // По умолчанию не показываем услуги
+    }
+
+    protected function shouldShowType(): bool
+    {
+        return true; // По умолчанию показываем тип заявки
     }
 }

@@ -3,14 +3,15 @@
 namespace App\Orchid\Screens\RentalApplication;
 
 use App\Enums\RentalApplication\RentalApplicationStatus;
+use App\Enums\RentalApplication\RentalApplicationType;
 use App\Models\RentalApplication;
+use App\Orchid\Screens\Base\BaseApplicationListScreen;
 use App\Orchid\Layouts\RentalApplication\RentalApplicationListLayout;
 use App\Orchid\Layouts\RentalApplication\RentalApplicationListTabLayout;
 use Orchid\Screen\Actions\Link;
-use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Toast;
 
-class RentalApplicationListScreen extends Screen
+class RentalApplicationListScreen extends BaseApplicationListScreen
 {
     public function query(): iterable
     {
@@ -45,18 +46,20 @@ class RentalApplicationListScreen extends Screen
         ];
     }
 
-    public function layout(): iterable
-    {
-        return [
-            RentalApplicationListTabLayout::class,
-            RentalApplicationListLayout::class,
-        ];
-    }
-
     public function remove(int $id): void
     {
-        $rentalApplication = RentalApplication::findOrFail($id);   
-        $rentalApplication->delete();
+        $application = RentalApplication::findOrFail($id);
+        $application->delete();
         Toast::success('Заявка на аренду удалена');
+    }
+
+    protected function getTabLayoutClass(): string
+    {
+        return RentalApplicationListTabLayout::class;
+    }
+
+    protected function getListLayoutClass(): string
+    {
+        return RentalApplicationListLayout::class;
     }
 }

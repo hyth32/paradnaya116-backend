@@ -19,9 +19,27 @@ class ProductViewLayout extends Legend
 
             Sight::make('description', 'Описание'),
 
-            Sight::make('price', 'Стоимость'),
+            Sight::make('price', 'Стоимость')
+                ->render(fn (Product $product) => number_format($product->price, 2) . ' ₽'),
 
-            Sight::make('quantity', 'Количество'),
+            Sight::make('quantity', 'Общее количество'),
+
+            Sight::make('available_for_rental', 'Доступно для аренды')
+                ->render(fn (Product $product) => $product->getAvailableForRental()),
+
+            Sight::make('available_for_purchase', 'Доступно для покупки')
+                ->render(fn (Product $product) => $product->getAvailableForPurchase()),
+
+            Sight::make('reserved_rental', 'Зарезервировано для аренды')
+                ->render(fn (Product $product) => $product->getRentalReservedQuantity()),
+
+            Sight::make('reserved_purchase', 'Зарезервировано для покупки')
+                ->render(fn (Product $product) => $product->getPurchaseReservedQuantity()),
+
+            Sight::make('status', 'Статус')
+                ->render(fn (Product $product) => 
+                    '<span class="badge bg-' . $product->status->color() . '">' . $product->status->label() . '</span>'
+                ),
 
             Sight::make('created_at', 'Дата создания')
                 ->render(fn (Product $product) => $product->created_at->format('d.m.Y H:i')),

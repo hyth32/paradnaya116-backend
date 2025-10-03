@@ -32,12 +32,24 @@ abstract class BaseApplicationViewScreen extends Screen
 
     public function name(): ?string
     {
+        if (!$this->application) {
+            return 'Заявка';
+        }
+        
         return $this->getApplicationTitle();
     }
 
     public function commandBar(): iterable
     {
+        if (!$this->application) {
+            return [];
+        }
+
         $commandBar = collect([
+            Link::make('Назад')
+                ->icon('bs.arrow-left')
+                ->route($this->getBackRoute()),
+                
             Link::make('Редактировать')
                 ->icon('bs.pencil')
                 ->route($this->editRouteName, $this->application->id)
@@ -56,6 +68,10 @@ abstract class BaseApplicationViewScreen extends Screen
 
     protected function getStatusButtons(): array
     {
+        if (!$this->application) {
+            return [];
+        }
+
         $currentStatus = $this->application->status;
 
         $statusButtons = collect();
@@ -83,18 +99,30 @@ abstract class BaseApplicationViewScreen extends Screen
 
     public function acceptApplication()
     {
+        if (!$this->application) {
+            return;
+        }
+        
         $this->application->accept();
         Toast::success($this->acceptMessage);
     }
 
     public function cancelApplication()
     {
+        if (!$this->application) {
+            return;
+        }
+        
         $this->application->cancel();
         Toast::success($this->cancelMessage);
     }
 
     public function completeApplication()
     {
+        if (!$this->application) {
+            return;
+        }
+        
         $this->application->complete();
         Toast::success($this->completeMessage);
     }
@@ -108,7 +136,16 @@ abstract class BaseApplicationViewScreen extends Screen
 
     protected function getApplicationTitle(): string
     {
+        if (!$this->application) {
+            return 'Заявка';
+        }
+        
         return "Заявка №{$this->application->id}";
+    }
+
+    protected function getBackRoute(): string
+    {
+        return 'rental-applications.index';
     }
 
     abstract protected function getViewLayoutClass(): string;

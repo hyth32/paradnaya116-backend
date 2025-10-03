@@ -4,11 +4,11 @@ namespace App\Orchid\Layouts\RentalApplication;
 
 use App\Enums\RentalApplication\RentalApplicationStatus;
 use App\Models\RentalApplication;
+use App\Orchid\Layouts\Base\BaseApplicationListTabLayout;
 use Orchid\Screen\Actions\Menu;
-use Orchid\Screen\Layouts\TabMenu;
 use Orchid\Support\Color;
 
-class RentalApplicationListTabLayout extends TabMenu
+class RentalApplicationListTabLayout extends BaseApplicationListTabLayout
 {
     protected function navigations(): iterable
     {
