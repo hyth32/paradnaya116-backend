@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('rental_applications', function (Blueprint $table) {
             $table->id();
-            $table->string('status');
+            $table->string('status')->default('new');
 
             $table->string('customer_name');
             $table->string('customer_phone')->nullable();

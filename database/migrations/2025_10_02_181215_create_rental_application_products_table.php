@@ -10,17 +10,12 @@ return new class extends Migration
     {
         Schema::create('rental_application_products', function (Blueprint $table) {
             $table->id();
-            $table->integer('rental_application_id');
-            $table->foreign('rental_application_id', 'fk-rental-application-1')
-                ->references('id')
-                ->on('rental_applications');
-            $table->integer('product_id');
-            $table->foreign('product_id', 'fk-rental-product-1')
-                ->references('id')
-                ->on('products');
+            $table->foreignId('rental_application_id')->constrained()->onDelete('cascade');
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->integer('quantity');
-
             $table->timestamps();
+            
+            $table->unique(['rental_application_id', 'product_id']);
         });
     }
 

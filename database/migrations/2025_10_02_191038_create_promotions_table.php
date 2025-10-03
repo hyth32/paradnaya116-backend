@@ -8,14 +8,14 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('products', function (Blueprint $table) {
+        Schema::create('promotions', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('image')->nullable();
             $table->text('description')->nullable();
-            $table->float('price');
-            $table->integer('quantity');
+            $table->timestamp('start_date');
+            $table->timestamp('end_date');
             $table->string('status')->default('active');
-            
             $table->timestamps();
             $table->softDeletes();
         });
@@ -23,6 +23,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('products');
+        Schema::dropIfExists('promotions');
     }
 };
