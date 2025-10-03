@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Product\ProductStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -21,12 +22,14 @@ class Product extends Model
         'price',
         'quantity',
         'archived_at',
+        'status',
     ];
 
     protected $casts = [
-        'created_at' => 'datetime',  
-        'updated_at' => 'datetime',  
-        'archived_at' => 'datetime',  
+        'status' => ProductStatus::class,
+        'created_at' => 'datetime', 
+        'updated_at' => 'datetime',
+        'archived_at' => 'datetime',
     ];
 
     public function images(): HasMany
@@ -36,17 +39,27 @@ class Product extends Model
 
     public function rentalApplications(): BelongsToMany
     {
-        return $this->belongsToMany(RentalApplication::class, RentalApplicationProduct::class)->withPivot('quantity');
+        return $this->belongsToMany(RentalApplication::class, 'rental_application_products')->withPivot('quantity');
+    }
+
+    public function purchaseApplications(): BelongsToMany
+    {
+        return $this->belongsToMany(PurchaseApplication::class, 'purchase_application_products')->withPivot('quantity');
     }
 
     public function scopeActive(Builder $query): Builder
     {
-        return $query->whereNull('archived_at');
+        return $query->where('status', ProductStatus::Active);
     }
 
     public function scopeArchived(Builder $query): Builder
     {
-        return $query->whereNotNull('archived_at');
+        return $query->where('status', ProductStatus::Archived);
+    }
+
+    public function scopeTrashed(Builder $query): Builder
+    {
+        return $query->where('status', ProductStatus::Trashed);
     }
 
     public function scopeAvailable(Builder $query): Builder
@@ -56,12 +69,12 @@ class Product extends Model
 
     public function resolveRouteBinding($value, $field = null): ?Product
     {
-        return $this->withTrashed()->where($field ?? $this->getRouteKeyName(), $value)->firstOrFail();
+        return $this->where($field ?? $this->getRouteKeyName(), $value)->firstOrFail();
     }
 
     private function updateArchiveStatus(?Carbon $time): self
     {
-        $this->update(['archived_at' => $time]);
+        $this->update(['status' => $time ? ProductStatus::Archived : ProductStatus::Active]);
         return $this->refresh();
     }
 
@@ -77,14 +90,49 @@ class Product extends Model
 
     public function isArchived(): bool
     {
-        return $this->archived_at !== null;
+        return $this->status === ProductStatus::Archived;
+    }
+
+    public function isTrashed(): bool
+    {
+        return $this->status === ProductStatus::Trashed;
     }
 
     public function getAvailableQuantity()
     {
-        $pivot = 'rental_application_products';
-        $reserved = $this->rentalApplications()->active()->sum("{$pivot}.quantity");
+        $rentalReserved = $this->rentalApplications()
+            ->where('status', 'active')
+            ->sum('rental_application_products.quantity');
         
-        return max(0, $this->quantity - $reserved);
+        return max(0, $this->quantity - $rentalReserved);
+    }
+
+    public function getRentalReservedQuantity()
+    {
+        return $this->rentalApplications()
+            ->where('status', 'active')
+            ->sum('rental_application_products.quantity');
+    }
+
+    public function getPurchaseReservedQuantity()
+    {
+        return $this->purchaseApplications()
+            ->where('status', 'active')
+            ->sum('purchase_application_products.quantity');
+    }
+
+    public function getTotalReservedQuantity()
+    {
+        return $this->getRentalReservedQuantity() + $this->getPurchaseReservedQuantity();
+    }
+
+    public function getAvailableForRental()
+    {
+        return max(0, $this->quantity - $this->getRentalReservedQuantity());
+    }
+
+    public function getAvailableForPurchase()
+    {
+        return max(0, $this->quantity - $this->getPurchaseReservedQuantity());
     }
 }

@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Enums\RentalApplication\RentalApplicationStatus;
-use App\Events\RentalApplicationStatusChanged;
+use App\Events\PurchaseApplicationStatusChanged;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +13,7 @@ use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
 use Propaganistas\LaravelPhone\Casts\E164PhoneNumberCast;
 
-class RentalApplication extends Model
+class PurchaseApplication extends Model
 {
     use SoftDeletes, AsSource, Filterable;
 
@@ -25,8 +25,6 @@ class RentalApplication extends Model
         'deposit',
         'comment',
         'total_price',
-        'start_date',
-        'end_date',
         'approved_at',
         'canceled_at',
         'completed_at',
@@ -35,8 +33,6 @@ class RentalApplication extends Model
     protected $casts = [
         'customer_phone' => E164PhoneNumberCast::class.':RU',
         'status' => RentalApplicationStatus::class,
-        'start_date' => 'datetime',
-        'end_date' => 'datetime',
         'approved_at' => 'datetime',
         'canceled_at' => 'datetime',
         'completed_at' => 'datetime',
@@ -44,7 +40,7 @@ class RentalApplication extends Model
 
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'rental_application_products')->withPivot('quantity');
+        return $this->belongsToMany(Product::class, 'purchase_application_products')->withPivot('quantity');
     }
 
     public function scopeStatus(Builder $query, RentalApplicationStatus $status): Builder
@@ -102,8 +98,9 @@ class RentalApplication extends Model
         $oldStatus = $this->status;
         $this->update(['status' => $status]);
         
+        // Генерируем событие изменения статуса
         if ($oldStatus !== $status) {
-            event(new RentalApplicationStatusChanged($this, $oldStatus, $status));
+            event(new PurchaseApplicationStatusChanged($this, $oldStatus, $status));
         }
         
         return $this->refresh();

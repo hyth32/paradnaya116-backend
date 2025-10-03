@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Enums\Product;
+namespace App\Enums\Service;
 
-enum ProductStatus: string
+enum ServiceStatus: string
 {
     case Active = 'active';
     case Archived = 'archived';
@@ -11,9 +11,9 @@ enum ProductStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Active => 'Активный',
-            self::Archived => 'Архивный',
-            self::Trashed => 'Удаленный',
+            self::Active => 'Активная',
+            self::Archived => 'Архивная',
+            self::Trashed => 'Удаленная',
         };
     }
 
@@ -21,7 +21,7 @@ enum ProductStatus: string
     {
         return match ($this) {
             self::Active => 'success',
-            self::Archived => 'secondary',
+            self::Archived => 'warning',
             self::Trashed => 'danger',
         };
     }

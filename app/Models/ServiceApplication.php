@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\RentalApplication\RentalApplicationStatus;
-use App\Events\RentalApplicationStatusChanged;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +12,7 @@ use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
 use Propaganistas\LaravelPhone\Casts\E164PhoneNumberCast;
 
-class RentalApplication extends Model
+class ServiceApplication extends Model
 {
     use SoftDeletes, AsSource, Filterable;
 
@@ -42,9 +41,9 @@ class RentalApplication extends Model
         'completed_at' => 'datetime',
     ];
 
-    public function products(): BelongsToMany
+    public function services(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'rental_application_products')->withPivot('quantity');
+        return $this->belongsToMany(Service::class, 'service_application_services');
     }
 
     public function scopeStatus(Builder $query, RentalApplicationStatus $status): Builder
@@ -99,13 +98,7 @@ class RentalApplication extends Model
 
     public function setStatus(RentalApplicationStatus $status): self
     {
-        $oldStatus = $this->status;
         $this->update(['status' => $status]);
-        
-        if ($oldStatus !== $status) {
-            event(new RentalApplicationStatusChanged($this, $oldStatus, $status));
-        }
-        
         return $this->refresh();
     }
 
