@@ -2,12 +2,10 @@
 
 namespace App\Orchid\Screens\RentalApplication;
 
-use App\Enums\RentalApplication\RentalApplicationStatus;
 use App\Models\RentalApplication;
 use App\Orchid\Layouts\RentalApplication\RentalApplicationStatusBlockLayout;
 use App\Orchid\Layouts\RentalApplication\RentalApplicationViewLayout;
 use Orchid\Screen\Actions\Button;
-use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Toast;
@@ -18,7 +16,7 @@ class RentalAppllicationViewScreen extends Screen
 
     public function query(RentalApplication $rentalApplication): iterable
     {
-        $this->rentalApplication = $rentalApplication;
+        $rentalApplication->load(['products']);
         
         return [
             'rentalApplication' => $rentalApplication,
@@ -32,78 +30,60 @@ class RentalAppllicationViewScreen extends Screen
 
     public function commandBar(): iterable
     {
-        if (!$this->rentalApplication) {
-            return [];
-        }
-
-        $commandBar = collect([
+        return [
             Link::make('Назад')
                 ->icon('bs.arrow-left')
                 ->route('rental-applications.index'),
-                
+
             Link::make('Редактировать')
                 ->icon('bs.pencil')
-                ->route('rental-applications.edit', $this->rentalApplication->id)
-        ]);
+                ->route('rental-applications.edit', $this->rentalApplication->id),
 
-        if (!$this->rentalApplication->isCompleted() && !$this->rentalApplication->isCanceled()) {
-            $commandBar->push(
-                DropDown::make('Изменить статус')
-                    ->icon('bs.clipboard')
-                    ->list($this->getStatusButtons()),
-            );
-        }
+            Button::make('Принять')
+                ->canSee($this->rentalApplication->isNew())
+                ->icon('bs.check-circle')
+                ->confirm('Вы уверены, что хотите принять заявку?')
+                ->method('accept', [
+                    'id' => $this->rentalApplication->id,
+                ]),
 
-        return $commandBar;
+            Button::make('Отменить')
+                ->canSee($this->rentalApplication->isActive())
+                ->icon('bs.x-circle')
+                ->confirm('Вы уверены, что хотите отменить заявку?')
+                ->method('cancel', [
+                    'id' => $this->rentalApplication->id,
+                ]),
+
+            Button::make('Завершить')
+                ->canSee($this->rentalApplication->isActive())
+                ->icon('bs.check-circle-fill')
+                ->confirm('Вы уверены, что хотите завершить заявку?')
+                ->method('complete', [
+                    'id' => $this->rentalApplication->id,
+                ]),
+        ];
     }
 
-    protected function getStatusButtons(): array
+    public function accept(int $id): void
     {
-        if (!$this->rentalApplication) {
-            return [];
-        }
-
-        $currentStatus = $this->rentalApplication->status;
-
-        $statusButtons = collect();
-
-        if ($currentStatus == RentalApplicationStatus::New) {
-            $statusButtons->push(
-                Button::make('Принять в работу')->method('accept')
-            );
-        }
-
-        if ($currentStatus == RentalApplicationStatus::Active) {
-            $statusButtons->push(
-                Button::make('Отметить как выполненную')->method('complete')
-            );
-        }
-
-        if (!in_array($currentStatus, [RentalApplicationStatus::Canceled, RentalApplicationStatus::Completed])) {
-            $statusButtons->push(
-                Button::make('Отменить')->method('cancel'),
-            );
-        }
-
-        return $statusButtons->toArray();
-    }
-
-    public function accept()
-    {
-        $this->rentalApplication->accept();
+        $application = RentalApplication::findOrFail($id);
+        $application->accept();
         Toast::success('Заявка принята');
     }
 
-    public function cancel()
+    public function cancel(int $id): void
     {
-        $this->rentalApplication->cancel();
+        $application = RentalApplication::findOrFail($id);
+        $application->cancel();
         Toast::success('Заявка отменена');
     }
 
-    public function complete()
+    public function complete(int $id): void
     {
-        $this->rentalApplication->complete();
-        Toast::success('Заявка выполнена');
+        $application = RentalApplication::findOrFail($id);
+        $application->complete();
+        Toast::success('Заявка завершена');
     }
 
     public function layout(): iterable

@@ -20,7 +20,6 @@ class SaveRentalApplicationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'rentalApplication.type' => 'required|in:purchase,service,rental',
             'rentalApplication.customer_name' => 'required|string',
             'rentalApplication.customer_phone' => 'nullable|phone:RU',
             'rentalApplication.customer_email' => 'nullable|email:rfc',

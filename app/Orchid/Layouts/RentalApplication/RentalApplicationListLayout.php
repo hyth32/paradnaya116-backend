@@ -20,6 +20,23 @@ class RentalApplicationListLayout extends Table
 
             TD::make('customer_name', 'Имя клиента'),
 
+            TD::make('customer_phone', 'Телефон клиента'),
+
+            TD::make('products', 'Товары')
+                ->render(fn (RentalApplication $application) => 
+                    $application->products->pluck('name')->join(', ')
+                ),
+
+            TD::make('total_price', 'Общая стоимость')
+                ->render(fn (RentalApplication $application) => 
+                    number_format($application->total_price, 2) . ' ₽'
+                ),
+
+            TD::make('status', 'Статус')
+                ->render(fn (RentalApplication $application) => 
+                    '<span class="badge bg-' . $application->status->color() . '">' . $application->status->label() . '</span>'
+                ),
+
             TD::make('start_date', 'Дата начала')
                 ->render(fn (RentalApplication $application) => $application->start_date->format('d.m.Y')),
 
@@ -40,15 +57,30 @@ class RentalApplicationListLayout extends Table
                                 ->route('rental-applications.view', $application->id),
                             
                             Link::make('Редактировать')
-                                ->canSee(!$application->isCompleted())
                                 ->icon('bs.pencil')
                                 ->route('rental-applications.edit', $application->id),
 
-                            Button::make('Удалить')
-                                ->icon('bs.trash')
-                                ->canSee(!$application->trashed())
-                                ->confirm('Вы уверены, что хотите удалить заявку?')
-                                ->method('remove', [
+                            Button::make('Принять')
+                                ->canSee($application->isNew())
+                                ->icon('bs.check-circle')
+                                ->confirm('Вы уверены, что хотите принять заявку?')
+                                ->method('accept', [
+                                    'id' => $application->id,
+                                ]),
+
+                            Button::make('Отменить')
+                                ->canSee($application->isActive())
+                                ->icon('bs.x-circle')
+                                ->confirm('Вы уверены, что хотите отменить заявку?')
+                                ->method('cancel', [
+                                    'id' => $application->id,
+                                ]),
+
+                            Button::make('Завершить')
+                                ->canSee($application->isActive())
+                                ->icon('bs.check-circle-fill')
+                                ->confirm('Вы уверены, что хотите завершить заявку?')
+                                ->method('complete', [
                                     'id' => $application->id,
                                 ]),
                         ]),

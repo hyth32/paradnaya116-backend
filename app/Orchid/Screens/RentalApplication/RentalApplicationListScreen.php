@@ -16,7 +16,8 @@ class RentalApplicationListScreen extends Screen
     {
         $status = request()->get('status', RentalApplicationStatus::New->value);
 
-        $query = RentalApplication::where('status', $status)
+        $query = RentalApplication::with(['products'])
+            ->where('status', $status)
             ->defaultSort('id', 'desc');
 
         return [
@@ -45,6 +46,27 @@ class RentalApplicationListScreen extends Screen
             RentalApplicationListTabLayout::class,
             RentalApplicationListLayout::class,
         ];
+    }
+
+    public function accept(int $id): void
+    {
+        $application = RentalApplication::findOrFail($id);
+        $application->accept();
+        Toast::success('Заявка принята');
+    }
+
+    public function cancel(int $id): void
+    {
+        $application = RentalApplication::findOrFail($id);
+        $application->cancel();
+        Toast::success('Заявка отменена');
+    }
+
+    public function complete(int $id): void
+    {
+        $application = RentalApplication::findOrFail($id);
+        $application->complete();
+        Toast::success('Заявка завершена');
     }
 
     public function remove(int $id): void
