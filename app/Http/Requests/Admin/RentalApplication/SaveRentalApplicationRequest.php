@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Admin\RentalApplication;
 
+use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class SaveRentalApplicationRequest extends FormRequest
 {
@@ -23,6 +25,13 @@ class SaveRentalApplicationRequest extends FormRequest
             'rentalApplication.customer_phone' => 'nullable|phone:RU',
             'rentalApplication.customer_email' => 'nullable|email:rfc',
             'rentalApplication.products' => 'required|array|min:1',
+            'rentalApplication.products.*' => [
+                'required',
+                'integer',
+                Rule::exists('products', 'id')->where(function ($query) {
+                    $query->where('status', 'active');
+                }),
+            ],
             'rentalApplication.deposit' => 'nullable|decimal:0,2',
             'rentalApplication.comment' => 'nullable|string',
             'rentalApplication.start_date' => 'nullable|date',
@@ -43,5 +52,22 @@ class SaveRentalApplicationRequest extends FormRequest
             'rentalApplication.start_date' => 'Дата начала аренды',
             'rentalApplication.end_date' => 'Дата окончания аренды',
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $products = $this->input('rentalApplication.products', []);
+            
+            foreach ($products as $productId) {
+                $product = Product::find($productId);
+                if ($product && $product->getAvailableForRental() <= 0) {
+                    $validator->errors()->add(
+                        'rentalApplication.products',
+                        "Товар '{$product->name}' недоступен для аренды (нет в наличии)"
+                    );
+                }
+            }
+        });
     }
 }
