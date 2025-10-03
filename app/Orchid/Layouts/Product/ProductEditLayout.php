@@ -2,11 +2,12 @@
 
 namespace App\Orchid\Layouts\Product;
 
-use App\Enums\Product\ProductStatus;
 use Orchid\Screen\Layouts\Rows;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Quill;
 use Orchid\Screen\Fields\Select;
+use Orchid\Screen\Fields\Picture;
+use Orchid\Screen\Fields\Upload;
 
 class ProductEditLayout extends Rows
 {
@@ -40,11 +41,26 @@ class ProductEditLayout extends Rows
             Select::make('product.status')
                 ->title('Статус')
                 ->options([
-                    ProductStatus::Active->value => ProductStatus::Active->label(),
-                    ProductStatus::Archived->value => ProductStatus::Archived->label(),
-                    ProductStatus::Trashed->value => ProductStatus::Trashed->label(),
+                    'active' => 'Активный',
+                    'archived' => 'Архивный',
+                    'trashed' => 'Удаленный',
                 ])
                 ->required(),
+
+            Picture::make('product.main_image')
+                ->title('Главное изображение')
+                ->placeholder('Выберите главное изображение товара')
+                ->acceptedFiles('image/*')
+                ->storage('public')
+                ->path('products/main'),
+
+            Upload::make('product.detail_images')
+                ->title('Изображения деталей')
+                ->placeholder('Выберите изображения деталей товара')
+                ->acceptedFiles('image/*')
+                ->storage('public')
+                ->path('products/detail')
+                ->maxFiles(10),
         ];
     }
 }

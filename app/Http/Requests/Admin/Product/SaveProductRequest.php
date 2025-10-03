@@ -15,7 +15,10 @@ class SaveProductRequest extends FormRequest
             'product.description' => 'nullable|string',
             'product.price' => 'required|decimal:0,2|min:1',
             'product.quantity' => 'required|integer|min:1',
-            'product.status' => ['required', Rule::enum(ProductStatus::class)]
+            'product.status' => ['required', Rule::enum(ProductStatus::class)],
+            'product.main_image' => 'nullable|string',
+            'product.detail_images' => 'nullable|array',
+            'product.detail_images.*' => 'nullable|string',
         ];
     }
 
@@ -26,6 +29,8 @@ class SaveProductRequest extends FormRequest
             'product.description' => 'Описание',
             'product.price' => 'Стоимость',
             'product.quantity' => 'Количество',
+            'product.main_image' => 'Главное изображение',
+            'product.detail_images' => 'Изображения деталей',
         ];
     }
 }

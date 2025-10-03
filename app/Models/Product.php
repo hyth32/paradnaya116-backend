@@ -37,6 +37,16 @@ class Product extends Model
         return $this->hasMany(ProductImage::class);
     }
 
+    public function mainImage(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)->where('is_main', true);
+    }
+
+    public function detailImages(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)->where('is_main', false);
+    }
+
     public function rentalApplications(): BelongsToMany
     {
         return $this->belongsToMany(RentalApplication::class, 'rental_application_products')->withPivot('quantity');
@@ -134,5 +144,44 @@ class Product extends Model
     public function getAvailableForPurchase()
     {
         return max(0, $this->quantity - $this->getPurchaseReservedQuantity());
+    }
+
+    public function saveMainImage(?string $imagePath): void
+    {
+        if ($imagePath) {
+            $this->mainImage()->delete();
+            
+            $this->images()->create([
+                'path' => $imagePath,
+                'is_main' => true,
+            ]);
+        }
+    }
+
+    public function saveDetailImages(?array $imagePaths): void
+    {
+        if ($imagePaths && is_array($imagePaths)) {
+            $this->detailImages()->delete();
+            
+            foreach ($imagePaths as $imagePath) {
+                if ($imagePath) {
+                    $this->images()->create([
+                        'path' => $imagePath,
+                        'is_main' => false,
+                    ]);
+                }
+            }
+        }
+    }
+
+    public function getMainImagePath(): ?string
+    {
+        $mainImage = $this->mainImage()->first();
+        return $mainImage ? $mainImage->path : null;
+    }
+
+    public function getDetailImagePaths(): array
+    {
+        return $this->detailImages()->pluck('path')->toArray();
     }
 }

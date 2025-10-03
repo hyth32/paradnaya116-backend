@@ -2,6 +2,7 @@
 
 namespace App\Orchid\Screens\Promotion;
 
+use App\Enums\Promotion\PromotionStatus;
 use App\Http\Requests\Admin\Promotion\SavePromotionRequest;
 use App\Models\Promotion;
 use App\Orchid\Layouts\Promotion\PromotionEditLayout;
@@ -18,6 +19,7 @@ class PromotionEditScreen extends Screen
     {
         return [
             'promotion' => $promotion,
+            'promotion.status' => $promotion->status ? $promotion->status->value : 'active',
         ];
     }
 
@@ -49,6 +51,10 @@ class PromotionEditScreen extends Screen
     public function save(Promotion $promotion, SavePromotionRequest $request)
     {
         $data = $request->validated()['promotion'];
+        
+        if (isset($data['status'])) {
+            $data['status'] = PromotionStatus::from($data['status']);
+        }
         
         $promotion->fill($data)->save();
 

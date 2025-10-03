@@ -17,6 +17,8 @@ class ProductViewScreen extends Screen
 
     public function query(Product $product): iterable
     {
+        $product->load(['images', 'mainImage', 'detailImages']);
+        
         return [
             'product' => $product,
         ];

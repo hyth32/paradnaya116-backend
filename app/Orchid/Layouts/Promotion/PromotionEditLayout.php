@@ -47,8 +47,8 @@ class PromotionEditLayout extends Rows
             Select::make('promotion.status')
                 ->title('Статус')
                 ->options([
-                    PromotionStatus::Active->value => PromotionStatus::Active->label(),
-                    PromotionStatus::Expired->value => PromotionStatus::Expired->label(),
+                    'active' => 'Активная',
+                    'expired' => 'Завершенная',
                 ])
                 ->required(),
         ];

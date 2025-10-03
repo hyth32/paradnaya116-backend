@@ -17,10 +17,13 @@ class ProductEditScreen extends Screen
     
     public function query(Product $product): iterable
     {
-        $product->load('images');
+        $product->load(['images', 'mainImage', 'detailImages']);
 
         return [
             'product' => $product,
+            'product.main_image' => $product->getMainImagePath(),
+            'product.detail_images' => $this->getDetailImageAttachments($product),
+            'product.status' => $product->status?->value ?? 'active',
         ];
     }
 
@@ -52,13 +55,76 @@ class ProductEditScreen extends Screen
     public function save(Product $product, SaveProductRequest $request)
     {
         $data = collect($request->validated())->get('product');
+        
+        $mainImage = $data['main_image'] ?? null;
+        $detailImages = $data['detail_images'] ?? null;
+        
+        unset($data['main_image'], $data['detail_images']);
+
+        if (isset($data['status'])) {
+            $data['status'] = ProductStatus::from($data['status']);
+        }
 
         $product->fill($data)->save();
+
+        $product->saveMainImage($this->extractRelativePath($mainImage));
+        
+        if ($detailImages && is_array($detailImages)) {
+            $relativePaths = [];
+            foreach ($detailImages as $attachmentId) {
+                if (is_numeric($attachmentId)) {
+                    $attachment = \DB::table('attachments')->find($attachmentId);
+                    if ($attachment) {
+                        $fullPath = $attachment->path . $attachment->name . '.' . $attachment->extension;
+                        $relativePaths[] = $fullPath;
+                    }
+                } elseif (is_string($attachmentId)) {
+                    $relativePaths[] = $this->extractRelativePath($attachmentId);
+                }
+            }
+            $product->saveDetailImages($relativePaths);
+        } else {
+            $product->saveDetailImages(null);
+        }
 
         Toast::success($product->wasRecentlyCreated ? 'Товар добавлен' : 'Изменения сохранены');
 
         $status = $product->status;
 
         return redirect()->route('products.index', ['status' => $status->value]);
+    }
+
+    private function extractRelativePath(?string $fullPath): ?string
+    {
+        if (!$fullPath) {
+            return null;
+        }
+
+        if (str_starts_with($fullPath, 'http')) {
+            $parsedUrl = parse_url($fullPath);
+            $path = $parsedUrl['path'] ?? '';
+            return ltrim($path, '/storage/');
+        }
+
+        return $fullPath;
+    }
+
+    private function getDetailImageAttachments(Product $product): array
+    {
+        $detailImagePaths = $product->getDetailImagePaths();
+        $attachmentIds = [];
+
+        foreach ($detailImagePaths as $imagePath) {
+            $attachment = \DB::table('attachments')
+                ->where('path', 'like', '%' . dirname($imagePath) . '/')
+                ->where('name', basename($imagePath, '.' . pathinfo($imagePath, PATHINFO_EXTENSION)))
+                ->first();
+
+            if ($attachment) {
+                $attachmentIds[] = (string)$attachment->id;
+            }
+        }
+
+        return $attachmentIds;
     }
 }

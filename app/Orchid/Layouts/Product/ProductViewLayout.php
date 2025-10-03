@@ -36,6 +36,29 @@ class ProductViewLayout extends Legend
             Sight::make('reserved_purchase', 'Зарезервировано для покупки')
                 ->render(fn (Product $product) => $product->getPurchaseReservedQuantity()),
 
+            Sight::make('main_image', 'Главное изображение')
+                ->render(function (Product $product) {
+                    $mainImagePath = $product->getMainImagePath();
+                    if ($mainImagePath) {
+                        return '<img src="' . asset('storage/' . $mainImagePath) . '" alt="Главное изображение" style="max-width: 200px; max-height: 200px; object-fit: cover;">';
+                    }
+                    return '<span class="text-muted">Изображение не загружено</span>';
+                }),
+
+            Sight::make('detail_images', 'Изображения деталей')
+                ->render(function (Product $product) {
+                    $detailImages = $product->detailImages;
+                    if ($detailImages->count() > 0) {
+                        $html = '<div style="display: flex; flex-wrap: wrap; gap: 10px;">';
+                        foreach ($detailImages as $image) {
+                            $html .= '<img src="' . asset('storage/' . $image->path) . '" alt="Изображение детали" style="max-width: 150px; max-height: 150px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px;">';
+                        }
+                        $html .= '</div>';
+                        return $html;
+                    }
+                    return '<span class="text-muted">Изображения деталей не загружены</span>';
+                }),
+
             Sight::make('status', 'Статус')
                 ->render(fn (Product $product) => 
                     '<span class="badge bg-' . $product->status->color() . '">' . $product->status->label() . '</span>'
