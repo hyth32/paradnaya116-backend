@@ -6,7 +6,11 @@ namespace App\Orchid;
 
 use App\Enums\Product\ProductStatus;
 use App\Enums\RentalApplication\RentalApplicationStatus;
+use App\Enums\Service\ServiceStatus;
 use App\Models\RentalApplication;
+use App\Models\ServiceApplication;
+use App\Models\PurchaseApplication;
+use App\Models\Promotion;
 use Orchid\Platform\Dashboard;
 use Orchid\Platform\ItemPermission;
 use Orchid\Platform\OrchidServiceProvider;
@@ -23,13 +27,49 @@ class PlatformProvider extends OrchidServiceProvider
     {
         return [
             Menu::make('Каталог')
-                ->icon('bs.journal')
-                ->route('products.index', ['status' => ProductStatus::Active->value]),
+                ->icon('bs.book')
+                ->expand()
+                ->active([
+                    'products*',
+                    'services*',
+                    'promotions*',
+                ])
+                ->list([
+                    Menu::make('Товары')
+                        ->icon('bs.journal')
+                        ->route('products.index', ['status' => ProductStatus::Active->value]),
+                    
+                    Menu::make('Услуги')
+                        ->icon('bs.gear')
+                        ->route('services.index', ['status' => ServiceStatus::Active->value]),
+                    
+                    Menu::make('Акции')
+                        ->icon('bs.gift')
+                        ->route('promotions.index', ['status' => 'active'])
+                        ->badge(fn () => Promotion::active()->count(), \Orchid\Support\Color::SUCCESS),
+                ]),
             
-            Menu::make('Заявки на аренду')
+            Menu::make('Заявки')
                 ->icon('bs.list-ul')
-                ->route('rental-applications.index', ['status' => RentalApplicationStatus::New->value])
-                ->badge(fn () => RentalApplication::query()->new()->count()),
+                ->expand()
+                ->active([
+                    'purchase-applications*',
+                    'service-applications*',
+                    'rental-applications*'
+                ])
+                ->list([
+                    Menu::make('Заявки на покупку')
+                        ->route('purchase-applications.index', ['status' => RentalApplicationStatus::New->value])
+                        ->badge(fn () => PurchaseApplication::query()->new()->count()),
+
+                    Menu::make('Заявки на услугу')
+                        ->route('service-applications.index', ['status' => RentalApplicationStatus::New->value])
+                        ->badge(fn () => ServiceApplication::query()->new()->count()),
+
+                    Menu::make('Заявки на аренду')
+                        ->route('rental-applications.index', ['status' => RentalApplicationStatus::New->value])
+                        ->badge(fn () => RentalApplication::query()->new()->count()),
+                ]),
 
             // Menu::make('Sample Screen')
             //     ->icon('bs.collection')

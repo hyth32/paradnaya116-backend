@@ -15,9 +15,21 @@ use App\Orchid\Screens\PlatformScreen;
 use App\Orchid\Screens\Product\ProductEditScreen;
 use App\Orchid\Screens\Product\ProductListScreen;
 use App\Orchid\Screens\Product\ProductViewScreen;
+use App\Orchid\Screens\Promotion\PromotionEditScreen;
+use App\Orchid\Screens\Promotion\PromotionListScreen;
+use App\Orchid\Screens\Promotion\PromotionViewScreen;
+use App\Orchid\Screens\Service\ServiceEditScreen;
+use App\Orchid\Screens\Service\ServiceListScreen;
+use App\Orchid\Screens\Service\ServiceViewScreen;
+use App\Orchid\Screens\PurchaseApplication\PurchaseApplicationEditScreen;
+use App\Orchid\Screens\PurchaseApplication\PurchaseApplicationListScreen;
+use App\Orchid\Screens\PurchaseApplication\PurchaseApplicationViewScreen;
 use App\Orchid\Screens\RentalApplication\RentalApplicationEditScreen;
 use App\Orchid\Screens\RentalApplication\RentalApplicationListScreen;
 use App\Orchid\Screens\RentalApplication\RentalAppllicationViewScreen;
+use App\Orchid\Screens\ServiceApplication\ServiceApplicationEditScreen;
+use App\Orchid\Screens\ServiceApplication\ServiceApplicationListScreen;
+use App\Orchid\Screens\ServiceApplication\ServiceApplicationViewScreen;
 use App\Orchid\Screens\Role\RoleEditScreen;
 use App\Orchid\Screens\Role\RoleListScreen;
 use App\Orchid\Screens\User\UserEditScreen;
@@ -63,30 +75,134 @@ Route::prefix('products')->as('products.')->group(function () {
             ->push($product->name, route('products.view', $product)));
 });
 
+Route::prefix('services')->as('services.')->group(function () {
+    Route::screen('/', ServiceListScreen::class)
+        ->name('index')
+        ->breadcrumbs(fn (Trail $trail) => $trail
+            ->parent('platform.index')
+            ->push('Каталог услуг', route('services.index')));
+    
+    Route::screen('/create', ServiceEditScreen::class)
+        ->name('create')
+        ->breadcrumbs(fn (Trail $trail) => $trail
+            ->parent('services.index')
+            ->push('Создание услуги', route('services.create')));
+    
+    Route::screen('/{service}/edit', ServiceEditScreen::class)
+        ->name('edit')
+        ->breadcrumbs(fn (Trail $trail, $service) => $trail
+            ->parent('services.index')
+            ->push('Редактирование услуги', route('services.edit', $service)));
+
+    Route::screen('/{service}/view', ServiceViewScreen::class)
+        ->name('view')
+        ->breadcrumbs(fn (Trail $trail, $service) => $trail
+            ->parent('services.index')
+            ->push($service->name, route('services.view', $service)));
+});
+
+Route::prefix('promotions')->as('promotions.')->group(function () {
+    Route::screen('/', PromotionListScreen::class)
+        ->name('index')
+        ->breadcrumbs(fn (Trail $trail) => $trail
+            ->parent('platform.index')
+            ->push('Список акций', route('promotions.index')));
+
+    Route::screen('/create', PromotionEditScreen::class)
+        ->name('create')
+        ->breadcrumbs(fn (Trail $trail) => $trail
+            ->parent('promotions.index')
+            ->push('Создание акции', route('promotions.create')));
+    
+    Route::screen('/{promotion}/edit', PromotionEditScreen::class)
+        ->name('edit')
+        ->breadcrumbs(fn (Trail $trail, $promotion) => $trail
+            ->parent('promotions.index')
+            ->push('Редактирование акции', route('promotions.edit', $promotion)));
+
+    Route::screen('/{promotion}/view', PromotionViewScreen::class)
+        ->name('view')
+        ->breadcrumbs(fn (Trail $trail, $promotion) => $trail
+            ->parent('promotions.index')
+            ->push($promotion->name, route('promotions.view', $promotion)));
+});
+
 Route::prefix('rental-applications')->as('rental-applications.')->group(function () {
     Route::screen('/', RentalApplicationListScreen::class)
         ->name('index')
         ->breadcrumbs(fn (Trail $trail) => $trail
             ->parent('platform.index')
-            ->push('Заявки на аренду', route('rental-applications.index')));
+            ->push('Список заявок', route('rental-applications.index')));
     
     Route::screen('/create', RentalApplicationEditScreen::class)
         ->name('create')
         ->breadcrumbs(fn (Trail $trail) => $trail
             ->parent('rental-applications.index')
-            ->push('Создание заявки на аренду', route('rental-applications.create')));
+            ->push('Создание заявки', route('rental-applications.create')));
     
     Route::screen('/{rentalApplication}/edit', RentalApplicationEditScreen::class)
         ->name('edit')
         ->breadcrumbs(fn (Trail $trail, $rentalApplication) => $trail
             ->parent('rental-applications.index')
-            ->push('Редактирование заявки на аренду', route('rental-applications.edit', $rentalApplication)));
+            ->push('Редактирование заявки', route('rental-applications.edit', $rentalApplication)));
 
     Route::screen('/{rentalApplication}/view', RentalAppllicationViewScreen::class)
         ->name('view')
         ->breadcrumbs(fn (Trail $trail, $rentalApplication) => $trail
             ->parent('rental-applications.index')
-            ->push("Заявка на аренду №{$rentalApplication->id}", route('rental-applications.view', $rentalApplication)));
+            ->push("Заявка №{$rentalApplication->id}", route('rental-applications.view', $rentalApplication)));
+});
+
+Route::prefix('purchase-applications')->as('purchase-applications.')->group(function () {
+    Route::screen('/', PurchaseApplicationListScreen::class)
+        ->name('index')
+        ->breadcrumbs(fn (Trail $trail) => $trail
+            ->parent('platform.index')
+            ->push('Список заявок на покупку', route('purchase-applications.index')));
+    
+    Route::screen('/create', PurchaseApplicationEditScreen::class)
+        ->name('create')
+        ->breadcrumbs(fn (Trail $trail) => $trail
+            ->parent('purchase-applications.index')
+            ->push('Создание заявки на покупку', route('purchase-applications.create')));
+    
+    Route::screen('/{purchaseApplication}/edit', PurchaseApplicationEditScreen::class)
+        ->name('edit')
+        ->breadcrumbs(fn (Trail $trail, $purchaseApplication) => $trail
+            ->parent('purchase-applications.index')
+            ->push('Редактирование заявки на покупку', route('purchase-applications.edit', $purchaseApplication)));
+
+    Route::screen('/{purchaseApplication}/view', PurchaseApplicationViewScreen::class)
+        ->name('view')
+        ->breadcrumbs(fn (Trail $trail, $purchaseApplication) => $trail
+            ->parent('purchase-applications.index')
+            ->push("Заявка на покупку №{$purchaseApplication->id}", route('purchase-applications.view', $purchaseApplication)));
+});
+
+Route::prefix('service-applications')->as('service-applications.')->group(function () {
+    Route::screen('/', ServiceApplicationListScreen::class)
+        ->name('index')
+        ->breadcrumbs(fn (Trail $trail) => $trail
+            ->parent('platform.index')
+            ->push('Список заявок на услугу', route('service-applications.index')));
+    
+    Route::screen('/create', ServiceApplicationEditScreen::class)
+        ->name('create')
+        ->breadcrumbs(fn (Trail $trail) => $trail
+            ->parent('service-applications.index')
+            ->push('Создание заявки на услугу', route('service-applications.create')));
+    
+    Route::screen('/{serviceApplication}/edit', ServiceApplicationEditScreen::class)
+        ->name('edit')
+        ->breadcrumbs(fn (Trail $trail, $serviceApplication) => $trail
+            ->parent('service-applications.index')
+            ->push('Редактирование заявки на услугу', route('service-applications.edit', $serviceApplication)));
+
+    Route::screen('/{serviceApplication}/view', ServiceApplicationViewScreen::class)
+        ->name('view')
+        ->breadcrumbs(fn (Trail $trail, $serviceApplication) => $trail
+            ->parent('service-applications.index')
+            ->push("Заявка на услугу №{$serviceApplication->id}", route('service-applications.view', $serviceApplication)));
 });
 
 Route::name('platform.')->group(function () {
