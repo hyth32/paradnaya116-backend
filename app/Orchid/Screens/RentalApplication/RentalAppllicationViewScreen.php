@@ -2,40 +2,115 @@
 
 namespace App\Orchid\Screens\RentalApplication;
 
-use App\Orchid\Screens\Base\BaseApplicationViewScreen;
+use App\Enums\RentalApplication\RentalApplicationStatus;
+use App\Models\RentalApplication;
 use App\Orchid\Layouts\RentalApplication\RentalApplicationStatusBlockLayout;
 use App\Orchid\Layouts\RentalApplication\RentalApplicationViewLayout;
+use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\DropDown;
+use Orchid\Screen\Actions\Link;
+use Orchid\Screen\Screen;
+use Orchid\Support\Facades\Toast;
 
-class RentalAppllicationViewScreen extends BaseApplicationViewScreen
+class RentalAppllicationViewScreen extends Screen
 {
-    protected string $editRouteName = 'rental-applications.edit';
-    protected string $acceptMessage = 'Заявка на аренду принята';
-    protected string $cancelMessage = 'Заявка на аренду отменена';
+    public ?RentalApplication $rentalApplication = null;
+
+    public function query(RentalApplication $rentalApplication): iterable
+    {
+        $this->rentalApplication = $rentalApplication;
+        
+        return [
+            'rentalApplication' => $rentalApplication,
+        ];
+    }
 
     public function name(): ?string
     {
-        if (!$this->application) {
-            return 'Заявка на аренду';
+        return "Заявка на аренду №{$this->rentalApplication->id}";
+    }
+
+    public function commandBar(): iterable
+    {
+        if (!$this->rentalApplication) {
+            return [];
         }
-        
-        return "Заявка на аренду №{$this->application->id}";
+
+        $commandBar = collect([
+            Link::make('Назад')
+                ->icon('bs.arrow-left')
+                ->route('rental-applications.index'),
+                
+            Link::make('Редактировать')
+                ->icon('bs.pencil')
+                ->route('rental-applications.edit', $this->rentalApplication->id)
+        ]);
+
+        if (!$this->rentalApplication->isCompleted() && !$this->rentalApplication->isCanceled()) {
+            $commandBar->push(
+                DropDown::make('Изменить статус')
+                    ->icon('bs.clipboard')
+                    ->list($this->getStatusButtons()),
+            );
+        }
+
+        return $commandBar;
     }
 
-    protected function getViewLayoutClass(): string
+    protected function getStatusButtons(): array
     {
-        return RentalApplicationViewLayout::class;
+        if (!$this->rentalApplication) {
+            return [];
+        }
+
+        $currentStatus = $this->rentalApplication->status;
+
+        $statusButtons = collect();
+
+        if ($currentStatus == RentalApplicationStatus::New) {
+            $statusButtons->push(
+                Button::make('Принять в работу')->method('accept')
+            );
+        }
+
+        if ($currentStatus == RentalApplicationStatus::Active) {
+            $statusButtons->push(
+                Button::make('Отметить как выполненную')->method('complete')
+            );
+        }
+
+        if (!in_array($currentStatus, [RentalApplicationStatus::Canceled, RentalApplicationStatus::Completed])) {
+            $statusButtons->push(
+                Button::make('Отменить')->method('cancel'),
+            );
+        }
+
+        return $statusButtons->toArray();
     }
 
-    protected function getBackRoute(): string
+    public function accept()
     {
-        return 'rental-applications.index';
+        $this->rentalApplication->accept();
+        Toast::success('Заявка принята');
+    }
+
+    public function cancel()
+    {
+        $this->rentalApplication->cancel();
+        Toast::success('Заявка отменена');
+    }
+
+    public function complete()
+    {
+        $this->rentalApplication->complete();
+        Toast::success('Заявка выполнена');
     }
 
     public function layout(): iterable
     {
         return [
             RentalApplicationStatusBlockLayout::class,
-            $this->getViewLayoutClass(),
+            RentalApplicationViewLayout::class,
         ];
     }
 }

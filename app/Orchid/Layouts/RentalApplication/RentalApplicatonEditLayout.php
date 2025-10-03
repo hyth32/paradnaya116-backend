@@ -2,69 +2,58 @@
 
 namespace App\Orchid\Layouts\RentalApplication;
 
-use App\Enums\RentalApplication\RentalApplicationType;
-use App\Orchid\Layouts\Base\BaseApplicationEditLayout;
+use App\Models\Product;
+use Orchid\Screen\Fields\DateTimer;
+use Orchid\Screen\Fields\Input;
+use Orchid\Screen\Fields\Select;
+use Orchid\Screen\Fields\TextArea;
+use Orchid\Screen\Layouts\Rows;
 
-class RentalApplicatonEditLayout extends BaseApplicationEditLayout
+class RentalApplicatonEditLayout extends Rows
 {
-    protected function getCustomerNameTitle(): string
-    {
-        return 'Имя арендатора';
-    }
-
-    protected function getCustomerNamePlaceholder(): string
-    {
-        return 'Введите имя арендатора';
-    }
-
-    protected function getCustomerPhoneTitle(): string
-    {
-        return 'Телефон арендатора';
-    }
-
-    protected function getCustomerPhonePlaceholder(): string
-    {
-        return 'Введите телефон арендатора';
-    }
-
-    protected function getCustomerEmailTitle(): string
-    {
-        return 'Email арендатора';
-    }
-
-    protected function getCustomerEmailPlaceholder(): string
-    {
-        return 'Введите email арендатора';
-    }
-
-    protected function getStartDateTitle(): string
-    {
-        return 'Дата начала аренды';
-    }
-
-    protected function getStartDatePlaceholder(): string
-    {
-        return 'Выберите дату начала аренды';
-    }
-
-    protected function getEndDateTitle(): string
-    {
-        return 'Дата окончания аренды';
-    }
-
-    protected function getEndDatePlaceholder(): string
-    {
-        return 'Выберите дату окончания аренды';
-    }
-
-    protected function getTypeOptions(): array
+    protected function fields(): iterable
     {
         return [
-        ];
-    }
+            Input::make('rentalApplication.customer_name')
+                ->title('Имя клиента')
+                ->placeholder('Введите имя клиента')
+                ->required(),
+            
+            Input::make('rentalApplication.customer_phone')
+                ->title('Телефон клиента')
+                ->placeholder('Введите телефон клиента')
+                ->mask('+7 (999) 999-99-99')
+                ->pattern('\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}'),
 
-    protected function shouldShowType(): bool
-    {
-        return false; // Не показываем поле типа для заявок на аренду
+            Input::make('rentalApplication.customer_email')
+                ->title('Email клиента')
+                ->placeholder('Введите email клиента'),
+
+            Select::make('rentalApplication.products')
+                ->title('Товары')
+                ->fromQuery(Product::query()->where('status', 'active'), 'name')
+                ->multiple(),
+
+            Input::make('rentalApplication.deposit')
+                ->type('number')
+                ->title('Сумма депозита')
+                ->step('0.01')
+                ->placeholder('Введите сумму депозита'),
+
+            TextArea::make('rentalApplication.comment')
+                ->title('Комментарий к заявке')
+                ->placeholder('Введите комментарий к заявке')
+                ->rows(10),
+
+            DateTimer::make('rentalApplication.start_date')
+                ->title('Дата начала')
+                ->placeholder('Выберите дату начала')
+                ->format('d.m.Y'),
+
+            DateTimer::make('rentalApplication.end_date')
+                ->title('Дата окончания')
+                ->placeholder('Выберите дату окончания')
+                ->format('d.m.Y'),
+        ];
     }
 }
